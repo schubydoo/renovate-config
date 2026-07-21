@@ -8,9 +8,6 @@
     "security:openssf-scorecard",
     "mergeConfidence:all-badges"
   ],
-  "ignorePresets": [
-    "helpers:pinGitHubActionDigests"
-  ],
   "timezone": "America/Los_Angeles",
   "schedule": [
     "before 6am"
