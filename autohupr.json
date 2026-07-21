@@ -1,0 +1,78 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>schubydoo/renovate-config"
+  ],
+  "commitBody": "Signed-off-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Alpine packages annotated with `# renovate: alpine-package=<name>` in Dockerfile.template",
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile(\\.template)?$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*alpine-package=(?<depName>[\\w-]+)\\s*\\n\\s*ARG\\s+\\w+_VERSION=(?<currentValue>[\\d.]+-r\\d+)"
+      ],
+      "datasourceTemplate": "repology",
+      "versioningTemplate": "loose",
+      "packageNameTemplate": "alpine_3_24/{{depName}}"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Group all balena-sdk-related deps",
+      "groupName": "balena packages",
+      "matchPackageNames": [
+        "/^balena-/"
+      ]
+    },
+    {
+      "description": "Hold TypeScript on v6 until @balena/lint (typescript-eslint) supports v7",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7.0.0"
+    },
+    {
+      "description": "Limit alpine base image lookups to semver versions (suppresses date-snapshot tag noise)",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "allowedVersions": "/^[0-9]+\\.[0-9]+(\\.[0-9]+)?$/"
+    },
+    {
+      "description": "Stay on the Alpine 3.24 series: hold minor/major bumps as reviewable PRs in the queue (was dependencyDashboardApproval; the dependency dashboard is disabled fleet-wide).",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Alpine keeps only the newest -rN of a package per release branch, so a stale apk pin fails the build. Ship these promptly instead of waiting for the weekly run.",
+      "matchDatasources": [
+        "repology"
+      ],
+      "groupName": "alpine packages",
+      "schedule": [
+        "at any time"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    }
+  ]
+}

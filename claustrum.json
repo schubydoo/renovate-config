@@ -1,0 +1,84 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>schubydoo/renovate-config"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
+  "pip-compile": {
+    "description": "Manage the hash-pinned docs lock: read docs/requirements.txt's pip-compile header, bump deps in docs/requirements.in, and regenerate the lock with --generate-hashes.",
+    "managerFilePatterns": [
+      "/^docs/requirements\\.txt$/"
+    ]
+  },
+  "customManagers": [
+    {
+      "description": "Track GREMLINS_VERSION in .github/workflows/mutation.yml — gremlins is `go install`-ed at CI runtime, so neither the gomod nor github-actions manager sees it. Renovate cross-references go-gremlins/gremlins's GitHub releases.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/mutation\\.yml$/"
+      ],
+      "matchStrings": [
+        "GREMLINS_VERSION:\\s+(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "go-gremlins/gremlins",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "slsa-github-generator must be called by semver tag, never a commit SHA — the reusable workflow verifies its own ref at runtime and fails when pinned to a digest (documented in the generator's README: builders/generators MUST be referenced by tag). Keep tag bumps, suppress the pinDigest/digest updates the pin preset would otherwise open.",
+      "matchPackageNames": [
+        "slsa-framework/slsa-github-generator"
+      ],
+      "matchUpdateTypes": [
+        "pinDigest",
+        "pin",
+        "digest"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Indirect gomod deps still get bumped — Go's transitive graph is part of the supply chain.",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "indirect"
+      ],
+      "enabled": true
+    },
+    {
+      "description": "Gremlins (mutation testing) is pinned as GREMLINS_VERSION in the workflow file, not go.mod — keep it on the chore(ci) cadence so its PR title passes the conventional-title check.",
+      "matchPackageNames": [
+        "go-gremlins/gremlins"
+      ],
+      "commitMessagePrefix": "chore(ci):",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "ci",
+      "groupName": "github-actions",
+      "automerge": true
+    },
+    {
+      "description": "docs/requirements.txt is a hash-pinned pip-compile lock (generated from docs/requirements.in). The pip-compile manager updates the .in and regenerates the lock WITH hashes; pip_requirements must NOT touch the lock or it would bump a version without regenerating --hash lines, breaking the --require-hashes install. Keep it disabled for that file.",
+      "matchManagers": [
+        "pip_requirements"
+      ],
+      "matchFileNames": [
+        "docs/requirements.txt"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Docs toolchain (mkdocs-material + transitive deps) bumps land in one PR via the pip-compile lock; chore(deps) keeps the conventional-title check happy.",
+      "matchManagers": [
+        "pip-compile"
+      ],
+      "groupName": "docs toolchain (mkdocs)",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
+    }
+  ]
+}
