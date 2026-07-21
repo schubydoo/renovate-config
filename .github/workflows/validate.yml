@@ -9,7 +9,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0 # renovate will SHA-pin this once it runs
+      - uses: actions/checkout@v7.0.1 # renovate will SHA-pin this once it runs
       - uses: actions/setup-node@v4.4.0
         with:
           node-version: lts/*
