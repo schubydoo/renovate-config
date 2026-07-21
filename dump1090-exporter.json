@@ -1,0 +1,66 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>schubydoo/renovate-config"
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "uv version (pinned in Dockerfile ARG). Tracked from PyPI because the Dockerfile installs uv via `pip install uv==<ver>` (the official ghcr.io/astral-sh/uv image lacks an armv7 manifest, which we still target).",
+      "managerFilePatterns": [
+        "/^Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG UV_VERSION=(?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "uv",
+      "datasourceTemplate": "pypi"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Group all pytest-related updates.",
+      "matchPackageNames": [
+        "/^pytest/"
+      ],
+      "groupName": "pytest"
+    },
+    {
+      "description": "Group all ruff-related updates.",
+      "matchPackageNames": [
+        "/^ruff/"
+      ],
+      "groupName": "ruff"
+    },
+    {
+      "description": "Group the aiohttp/aioprometheus pair — they move together.",
+      "matchPackageNames": [
+        "aiohttp",
+        "aioprometheus"
+      ],
+      "groupName": "aio-stack"
+    },
+    {
+      "description": "Group astral-sh/uv updates across the GitHub Action (setup-uv) and the Dockerfile pip-installed package (uv on PyPI) — they release in lockstep.",
+      "matchPackageNames": [
+        "astral-sh/setup-uv",
+        "uv"
+      ],
+      "groupName": "astral-sh/uv"
+    },
+    {
+      "description": "Group the demo stack images (prom/prometheus + grafana/grafana). They're only used by the local demo Compose file, so a single grouped PR keeps the noise down.",
+      "matchManagers": [
+        "docker-compose"
+      ],
+      "matchPackageNames": [
+        "prom/prometheus",
+        "grafana/grafana"
+      ],
+      "groupName": "demo stack"
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":semanticCommits",
+    ":disableDependencyDashboard",
+    "helpers:pinGitHubActionDigestsToSemver",
+    "security:openssf-scorecard",
+    "mergeConfidence:all-badges"
+  ],
+  "ignorePresets": [
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "America/Los_Angeles",
+  "schedule": [
+    "before 6am"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "platformAutomerge": true,
+  "automergeStrategy": "squash",
+  "prConcurrentLimit": 20,
+  "prHourlyLimit": 0,
+  "hostRules": [
+    {
+      "matchHost": "github.com",
+      "token": "{{ secrets.RENOVATE_GITHUB_COM_TOKEN }}"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "security"
+    ],
+    "minimumReleaseAge": null,
+    "schedule": [
+      "at any time"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": [
+      "before 6am on monday"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "GitHub Actions: one PR for all non-major + digest bumps, auto-merged daily, chore(ci) scope.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "github-actions",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "ci",
+      "automerge": true
+    },
+    {
+      "description": "Per-ecosystem non-major grouping for stable (>=1.0) deps; 0.x stays individual so a breaking 0.x bump never blocks the batch.",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0\\./",
+      "groupName": "gomod (non-major)"
+    },
+    {
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0\\./",
+      "groupName": "cargo (non-major)"
+    },
+    {
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0\\./",
+      "groupName": "npm (non-major)"
+    },
+    {
+      "matchManagers": [
+        "pep621",
+        "pip_requirements",
+        "poetry",
+        "pip-compile"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0\\./",
+      "groupName": "python (non-major)"
+    },
+    {
+      "matchManagers": [
+        "dockerfile",
+        "docker-compose"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "docker (non-major)"
+    },
+    {
+      "matchManagers": [
+        "pre-commit"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "pre-commit (non-major)"
+    },
+    {
+      "description": "Auto-merge patches, digest re-pins, and initial pins (docker index digests are multi-arch safe).",
+      "matchUpdateTypes": [
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Auto-merge minor only for stable (>=1.0) packages; 0.x minors and all majors stay reviewable in the queue.",
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "matchCurrentVersion": "!/^0\\./",
+      "automerge": true
+    },
+    {
+      "description": "Custom/regex-manager bumps (vendored assets, hand-pinned binaries) are a manual re-vendor heads-up: never auto-merge by default. A repo overrides this for a datasource it trusts (e.g. Alpine apk via repology).",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "vendored"
+      ]
+    }
+  ]
+}
