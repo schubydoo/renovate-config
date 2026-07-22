@@ -167,6 +167,19 @@
         "mkdocs-redirects"
       ],
       "allowedVersions": "<1.2.3"
+    },
+    {
+      "description": "Hold Alpine base-image MINOR bumps (e.g. 3.24 -> 3.25) for manual review: a minor can move the system python3 to a new interpreter minor the CI support matrix must move with, so it must not auto-merge on a green smoke-test alone. Patch bumps (3.24.x) and digest re-pins still auto-merge via the base policy — only minor is held. Restores the pre-centralization clauster behavior (the old inline rule auto-merged Alpine patch only).",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "automerge": false
     }
   ]
 }
