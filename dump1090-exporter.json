@@ -44,12 +44,21 @@
       "groupName": "aio-stack"
     },
     {
-      "description": "Group astral-sh/uv updates across the GitHub Action (setup-uv) and the Dockerfile pip-installed package (uv on PyPI) — they release in lockstep.",
+      "description": "Group astral-sh/uv updates across the GitHub Action (setup-uv) and the Dockerfile pip-installed package (uv on PyPI) — they release in lockstep. On a uv bump the Dockerfile's per-arch UV_SHA256_* ARGs go stale (Renovate bumps UV_VERSION but can't recompute the companion binary checksums); the postUpgradeTask refreshes them in-branch from the new release's dist-manifest.json, so the bump + hash refresh land in one commit. Self-hosted Renovate CE only (the command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS); replaces the retired renovate-uv-shas.yml follow-up-commit workflow.",
       "matchPackageNames": [
         "astral-sh/setup-uv",
         "uv"
       ],
-      "groupName": "astral-sh/uv"
+      "groupName": "astral-sh/uv",
+      "postUpgradeTasks": {
+        "commands": [
+          "bash tools/update-uv-shas.sh Dockerfile"
+        ],
+        "fileFilters": [
+          "Dockerfile"
+        ],
+        "executionMode": "branch"
+      }
     },
     {
       "description": "Group the demo stack images (prom/prometheus + grafana/grafana). They're only used by the local demo Compose file, so a single grouped PR keeps the noise down.",
