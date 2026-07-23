@@ -109,7 +109,7 @@
       ]
     },
     {
-      "description": "Never auto-merge a Shawl (Windows service wrapper) bump (#934). Renovate updates the version + derived URL but CANNOT recompute the source-pinned sha256, so a human must refresh it from GitHub's published asset digest (the binary-dep-pins check prints the correct value) before merging. That check is intentionally NOT a required status check (required + path-filtered would strand unrelated PRs), so forcing a manual merge here is what guarantees the failed verification is actually seen and acted on.",
+      "description": "Never auto-merge a Shawl (Windows service wrapper) bump (#934). Renovate updates the version + derived URL but CANNOT recompute the source-pinned sha256. Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites deps.py from GitHub's published asset digest), so the bump + refreshed hash land in one commit and the binary-dep-pins check passes. Still no auto-merge: a human eyeballs the refreshed pin before it ships (and if CE is down the task can't run, so the stale hash must be caught here). The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchDatasources": [
         "github-releases"
       ],
@@ -119,7 +119,16 @@
       "automerge": false,
       "labels": [
         "binary-dep"
-      ]
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          "src/clauster/deps.py"
+        ],
+        "executionMode": "branch"
+      }
     },
     {
       "description": "Auto-merge patch + minor updates of dev/test tooling once CI passes (a failing check blocks the merge).",
