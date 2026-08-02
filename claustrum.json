@@ -25,6 +25,19 @@
       "depNameTemplate": "go-gremlins/gremlins",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
+    },
+    {
+      "description": "Track GOTESTSUM_VERSION in .github/workflows/ci.yml — gotestsum is `go install`-ed at CI runtime to emit the JUnit XML Codecov's Test Analytics ingests, so neither the gomod nor github-actions manager sees it (the install leaves go.mod/go.sum untouched, and it is a `run:` step not a `uses:`). Renovate cross-references gotestyourself/gotestsum's GitHub releases — the repo, not the module path `gotest.tools/gotestsum`, because the datasource is github-releases.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "GOTESTSUM_VERSION:\\s+(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "gotestyourself/gotestsum",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
