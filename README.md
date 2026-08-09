@@ -45,8 +45,11 @@ this repo.
 
 ## Validation
 
-CI runs `renovate-config-validator --strict` on every preset. Run it locally with:
+CI runs `renovate-config-validator --strict` on every preset. Run the same thing locally:
 
 ```
-npx --yes --package renovate -- renovate-config-validator --strict
+npx --yes --package renovate -- renovate-config-validator --strict $(git ls-files '*.json')
 ```
+
+The file list is required. Without it the validator checks only `renovate.json`, reports
+success and exits 0, silently skipping every preset.
