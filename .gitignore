@@ -1,1 +1,7 @@
 node_modules/
+
+# Local agent/editor tooling state (host-specific; not part of the config repo)
+.claude/
+CLAUDE.local.md
+.local/
+.serena/
