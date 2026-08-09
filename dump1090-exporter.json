@@ -61,6 +61,16 @@
       }
     },
     {
+      "description": "Auto-merge uv patch bumps only. The base preset holds every custom.regex bump for a manual re-vendor, but the postUpgradeTask above refreshes the companion UV_SHA256_* ARGs in-branch, so a patch needs no human hand. 0.x minors and majors stay in the queue for review.",
+      "matchPackageNames": [
+        "uv"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
       "description": "Group the demo stack images (prom/prometheus + grafana/grafana). They're only used by the local demo Compose file, so a single grouped PR keeps the noise down.",
       "matchManagers": [
         "docker-compose"
