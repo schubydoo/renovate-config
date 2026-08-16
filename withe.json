@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>schubydoo/renovate-config"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the openapi-typescript version pinned in the build:client npm script. It is invoked with npx at build time, so it is not a package.json dependency and neither the npm nor github-actions manager sees it.",
+      "managerFilePatterns": [
+        "/^package\\.json$/"
+      ],
+      "matchStrings": [
+        "openapi-typescript@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "openapi-typescript",
+      "datasourceTemplate": "npm"
+    }
+  ]
+}
