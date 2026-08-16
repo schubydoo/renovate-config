@@ -12,7 +12,7 @@
         "/(^|/)Dockerfile(\\.template)?$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*alpine-package=(?<depName>[\\w-]+)\\s*\\n\\s*ARG\\s+\\w+_VERSION=(?<currentValue>[\\d.]+-r\\d+)"
+        "#\\s*renovate:\\s*alpine-package=(?<depName>[\\w-]+)\\s*\\n\\s*ARG\\s+\\w+_VERSION=(?<currentValue>[\\d.]+(?:-r\\d+)?)"
       ],
       "datasourceTemplate": "repology",
       "versioningTemplate": "loose",
@@ -62,7 +62,7 @@
       "automerge": false
     },
     {
-      "description": "Alpine keeps only the newest -rN of a package per release branch, so a stale apk pin fails the build. Ship these promptly instead of waiting for the weekly run.",
+      "description": "Auto-merge Alpine apk version bumps (repology). Dockerfile.template pins the version only and installs with the fuzzy =~ operator, so a -rN rebuild never breaks the build; Renovate sees and bumps the patch version through the custom manager, gated on CI.",
       "matchDatasources": [
         "repology"
       ],
