@@ -9,6 +9,9 @@
       "/^docs/requirements\\.txt$/"
     ]
   },
+  "pre-commit": {
+    "enabled": true
+  },
   "packageRules": [
     {
       "description": "docs/requirements.txt is a hash-pinned pip-compile lock (generated from docs/requirements.in). The pip-compile manager updates the .in and regenerates the lock WITH hashes; pip_requirements must NOT touch the lock or it would bump a version without regenerating --hash lines, breaking the --require-hashes install. Keep it disabled for that file.",
