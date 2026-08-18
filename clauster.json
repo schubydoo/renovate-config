@@ -188,9 +188,10 @@
       "allowedVersions": "<1.2.3"
     },
     {
-      "description": "Hold Alpine base-image MINOR bumps (e.g. 3.24 -> 3.25) for manual review: a minor can move the system python3 to a new interpreter minor the CI support matrix must move with, so it must not auto-merge on a green smoke-test alone. Patch bumps (3.24.x) and digest re-pins still auto-merge via the base policy — only minor is held. Restores the pre-centralization clauster behavior (the old inline rule auto-merged Alpine patch only).",
+      "description": "Hold Alpine base-image MINOR bumps (e.g. 3.24 -> 3.25) for manual review: a minor can move the system python3 to a new interpreter minor the CI support matrix must move with, so it must not auto-merge on a green smoke-test alone. Patch bumps (3.24.x) and digest re-pins still auto-merge via the base policy — only minor is held. Covers both the Dockerfile FROM and the ci.yml musl canary (custom.regex) so the grouped bump below holds as one on a minor. Restores the pre-centralization clauster behavior (the old inline rule auto-merged Alpine patch only).",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "custom.regex"
       ],
       "matchPackageNames": [
         "alpine"
@@ -199,6 +200,33 @@
         "minor"
       ],
       "automerge": false
+    },
+    {
+      "description": "Lockstep the Alpine base image: the Dockerfile `FROM alpine:` and the ci.yml musl canary (ALPINE_MUSL_IMAGE) are the SAME image and must never diverge, so group every update type into ONE PR. This overrides the base `docker (non-major)` grouping for alpine only.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "groupName": "alpine base image"
+    },
+    {
+      "description": "The ci.yml alpine canary is a custom.regex dep, which the base policy holds (automerge:false + `vendored` label). Restore the Dockerfile's automerge for it — patch + digest re-pins auto-merge on green CI (the musl smoke-test that runs this very image gates it) — so the grouped alpine-base PR merges hands-off, with no held follow-up to reconcile. Minor stays held by the rule above. Mirrors the existing repology-apk auto-merge precedent in this file. (The grouped PR still carries the `vendored` label the base adds to the custom.regex half — cosmetic.)",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "alpine"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "digest"
+      ],
+      "automerge": true
     }
   ]
 }
