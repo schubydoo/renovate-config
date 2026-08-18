@@ -66,6 +66,16 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+_\\w+ = \"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the Alpine image the `pytest on alpine musl` smoke-test in ci.yml runs via `docker run`. It duplicates the Dockerfile's `FROM alpine:` pin but lives in a workflow run-script (hoisted to the ALPINE_MUSL_IMAGE step env so this annotation sits on a mapping key), so neither the dockerfile nor github-actions manager sees it — this keeps the canary in lockstep with the shipped base. datasource/depName/versioning come from the annotation; currentDigest re-pins the sha alongside the version.",
+      "managerFilePatterns": [
+        "^\\.github/workflows/ci\\.yml$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+ALPINE_MUSL_IMAGE:\\s*\"alpine:(?<currentValue>[^@\"]+)@(?<currentDigest>sha256:[a-f0-9]+)\""
+      ]
     }
   ],
   "customDatasources": {
