@@ -92,6 +92,16 @@
       "groupName": "docs toolchain (mkdocs)",
       "semanticCommitType": "chore",
       "semanticCommitScope": "deps"
+    },
+    {
+      "description": "Hold the Go toolchain at 1.26.x. Go 1.27 enables the jsonv2 GOEXPERIMENT by default, reimplementing encoding/json's Marshal on the v2 engine, which renders invalid UTF-8 as the literal U+FFFD character instead of the \\ufffd escape claustrum's reference daemon emits — silently diverging every non-text files.read frame on the wire (inherited_encoding_test.go guards this and fails under 1.27). Allow 1.26.x patch/security bumps; block 1.27+ until the reference daemon's own encoding is confirmed. Matches both the go and toolchain directives (both carry depName go under the gomod manager).",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepNames": [
+        "go"
+      ],
+      "allowedVersions": "<1.27"
     }
   ]
 }
