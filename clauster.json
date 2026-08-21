@@ -65,6 +65,27 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+ALPINE_MUSL_IMAGE:\\s*\"alpine:(?<currentValue>[^@\"]+)@(?<currentDigest>sha256:[a-f0-9]+)\""
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track the BuildKit engine image pinned by DIGEST in docker/setup-buildx-action's `driver-opts` (release.yml + nightly.yml). Renovate's built-in github-actions manager already tracks the SIBLING buildx `version:` input on the same action, but it does NOT parse `driver-opts` — so without this the BuildKit half would drift silently while buildx got PRs. Both are pinned for #1189's digest-prediction reproducibility (the imagetools `--dry-run` must reproduce the published index digest) and must move deliberately together — held for review (see packageRules). versioning comes from the annotation; currentDigest re-pins the sha alongside the version.",
+      "managerFilePatterns": [
+        "^\\.github/workflows/(release|nightly)\\.yml$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+driver-opts: image=moby/buildkit:(?<currentValue>[^@\"\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases (#1170). Renovate bumps ONLY `ACTIONLINT_VERSION`; the download URL derives from it in the run-script, so version + URL can't drift. The adjacent `ACTIONLINT_SHA256` is NOT auto-updated (the hosted App reads github-releases' git-tag digest, not the release ASSET's tarball checksum), so a bump PR carries a stale hash until it is refreshed from the release's checksums.txt — the actionlint job's own `sha256sum -c` then fails loudly on the mismatch, so a stale hash can never silently ship. Held for review (see packageRules).",
+      "managerFilePatterns": [
+        "^\\.github/workflows/actionlint\\.yml$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "semver"
     }
   ],
   "customDatasources": {
@@ -128,6 +149,32 @@
         ],
         "executionMode": "branch"
       }
+    },
+    {
+      "description": "Never auto-merge a BuildKit engine bump (moby/buildkit driver-opts). It is pinned for #1189's digest-prediction reproducibility, and its build steps (release.yml / nightly.yml) run only on release/nightly triggers — NOT on the Renovate PR — so nothing on the PR proves the new engine still produces a matching predicted digest. A maintainer bumps the buildx `version:` in lockstep and re-validates the prediction before shipping.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "moby/buildkit"
+      ],
+      "automerge": false,
+      "labels": [
+        "binary-dep"
+      ]
+    },
+    {
+      "description": "Never auto-merge an actionlint bump: Renovate updates ACTIONLINT_VERSION but CANNOT recompute the adjacent ACTIONLINT_SHA256 (the release's checksums.txt asset digest, not the git-tag digest the hosted App sees). A maintainer refreshes the hash from checksums.txt; until then the actionlint job's `sha256sum -c` fails and blocks the merge — fail-loud, never silent.",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "rhysd/actionlint"
+      ],
+      "automerge": false,
+      "labels": [
+        "binary-dep"
+      ]
     },
     {
       "description": "Auto-merge patch + minor updates of dev/test tooling once CI passes (a failing check blocks the merge).",
