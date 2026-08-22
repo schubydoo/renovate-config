@@ -129,12 +129,13 @@
       ]
     },
     {
-      "description": "Never auto-merge a Shawl (Windows service wrapper) bump (#934). Renovate updates the version + derived URL but CANNOT recompute the source-pinned sha256. Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites deps.py from GitHub's published asset digest), so the bump + refreshed hash land in one commit and the binary-dep-pins check passes. Still no auto-merge: a human eyeballs the refreshed pin before it ships (and if CE is down the task can't run, so the stale hash must be caught here). The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "description": "Never auto-merge a hand-pinned binary-dep bump: Shawl, the Windows service wrapper (#934), or the claustrum Direct Session daemon (schubydoo/claustrum). Renovate updates the version + derived URL but CANNOT recompute the source-pinned sha256s. Self-hosted Renovate CE refreshes them in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites every stale pin in deps.py from GitHub's published asset digests), so the bump + refreshed hashes land in one commit and the binary-dep-pins check passes. Still no auto-merge: a human eyeballs the refreshed pins before they ship (and if CE is down the task can't run, so the stale hash must be caught here). The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchDatasources": [
         "github-releases"
       ],
       "matchPackageNames": [
-        "mtkennerly/shawl"
+        "mtkennerly/shawl",
+        "schubydoo/claustrum"
       ],
       "automerge": false,
       "labels": [
