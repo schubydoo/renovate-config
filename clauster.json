@@ -28,7 +28,7 @@
       "customType": "regex",
       "description": "Track the explicitly pinned Alpine apk packages in the Dockerfile (each `ARG <PKG>_VERSION=x.y.z-rN` preceded by a `# renovate:` line) via repology, so every OS-package bump is a Renovate PR instead of silent drift.",
       "managerFilePatterns": [
-        "^Dockerfile$"
+        "/^Dockerfile$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+ARG \\w+=(?<currentValue>\\S+)"
@@ -38,7 +38,7 @@
       "customType": "regex",
       "description": "Track the Chrome-for-Testing build the e2e leg pins (agent-browser fetches latest by default, which let Chrome 151 destabilize the 2-core leg — see #947). A bump is a Renovate PR that re-runs the e2e leg, so a new Chrome is verified green before it lands.",
       "managerFilePatterns": [
-        "^\\.github/workflows/e2e\\.yml$"
+        "/^\\.github/workflows/e2e\\.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+CHROME_VERSION:\\s*\"(?<currentValue>[0-9][^\"]*)\""
@@ -49,7 +49,7 @@
       "customType": "regex",
       "description": "Track the pinned Shawl (Windows service wrapper) release in deps.py via github-releases (#934). Renovate bumps the `_*_VERSION` constant; the download URL derives from it in code, so version and URL can't drift. The `sha256` is NOT auto-updated (the hosted App reads github-releases' git-tag digest, not the release ASSET's file checksum), so refresh it from GitHub's published asset digest — `scripts/check_binary_dep_pins.py` verifies each pin against that digest and prints the correct value, and `deps install` fail-closes on a mismatch.",
       "managerFilePatterns": [
-        "^src/clauster/deps\\.py$"
+        "/^src/clauster/deps\\.py$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+_\\w+ = \"(?<currentValue>[^\"]+)\""
@@ -60,7 +60,7 @@
       "customType": "regex",
       "description": "Track the Alpine image the `pytest on alpine musl` smoke-test in ci.yml runs via `docker run`. It duplicates the Dockerfile's `FROM alpine:` pin but lives in a workflow run-script (hoisted to the ALPINE_MUSL_IMAGE step env so this annotation sits on a mapping key), so neither the dockerfile nor github-actions manager sees it — this keeps the canary in lockstep with the shipped base. datasource/depName/versioning come from the annotation; currentDigest re-pins the sha alongside the version.",
       "managerFilePatterns": [
-        "^\\.github/workflows/ci\\.yml$"
+        "/^\\.github/workflows/ci\\.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+ALPINE_MUSL_IMAGE:\\s*\"alpine:(?<currentValue>[^@\"]+)@(?<currentDigest>sha256:[a-f0-9]+)\""
@@ -70,7 +70,7 @@
       "customType": "regex",
       "description": "Track the BuildKit engine image pinned by DIGEST in docker/setup-buildx-action's `driver-opts` (release.yml + nightly.yml). Renovate's built-in github-actions manager already tracks the SIBLING buildx `version:` input on the same action, but it does NOT parse `driver-opts` — so without this the BuildKit half would drift silently while buildx got PRs. Both are pinned for #1189's digest-prediction reproducibility (the imagetools `--dry-run` must reproduce the published index digest) and must move deliberately together — held for review (see packageRules). versioning comes from the annotation; currentDigest re-pins the sha alongside the version.",
       "managerFilePatterns": [
-        "^\\.github/workflows/(release|nightly)\\.yml$"
+        "/^\\.github/workflows/(release|nightly)\\.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+driver-opts: image=moby/buildkit:(?<currentValue>[^@\"\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
@@ -80,7 +80,7 @@
       "customType": "regex",
       "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases (#1170). Renovate bumps ONLY `ACTIONLINT_VERSION`; the download URL derives from it in the run-script, so version + URL can't drift. The adjacent `ACTIONLINT_SHA256` is NOT auto-updated (the hosted App reads github-releases' git-tag digest, not the release ASSET's tarball checksum), so a bump PR carries a stale hash until it is refreshed from the release's checksums.txt — the actionlint job's own `sha256sum -c` then fails loudly on the mismatch, so a stale hash can never silently ship. Held for review (see packageRules).",
       "managerFilePatterns": [
-        "^\\.github/workflows/actionlint\\.yml$"
+        "/^\\.github/workflows/actionlint\\.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
