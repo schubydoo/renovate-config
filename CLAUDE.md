@@ -35,8 +35,8 @@ without file arguments proves nothing.
 - A per-repo `groupName` / `postUpgradeTasks` rule does **not** re-enable `automerge`. Set it explicitly.
 - **`postUpgradeTasks` require self-hosting** (commands must be on
   `RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS`). Never suggest the Mend-hosted app.
-- **The bot runs on cron plus inbound GitHub webhooks** (App webhook → self-hosted Tailscale
-  Funnel, added 2026-08-22). A webhook triggers Renovate on events in the emitting repo only — a
+- **The bot runs on cron plus inbound GitHub webhooks** (App webhook → self-hosted Cloudflare
+  Tunnel). A webhook triggers Renovate on events in the emitting repo only — a
   preset edit merged here does **not** re-evaluate the downstream repos that extend it; those re-run
   on their own events or the next scheduled run. So a preset change still lands on the cron cycle —
   expected, not a failure.
