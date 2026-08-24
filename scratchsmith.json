@@ -16,5 +16,13 @@
       "depNameTemplate": "zizmor",
       "datasourceTemplate": "pypi"
     }
+  ],
+  "packageRules": [
+    {
+      "description": "Hold the MSRV job's Rust toolchain at the DECLARED minimum (Cargo.toml rust-version = 1.96). ci.yml's `build (MSRV 1.96)` job exists to prove the crate still builds on that floor; letting Renovate track it toward stable silently stops verifying the MSRV. Bump it only alongside a deliberate rust-version raise. (scratchsmith is the only repo in the fleet with a pinned MSRV job; siblings track stable.)",
+      "matchDepNames": ["rust"],
+      "matchFileNames": [".github/workflows/ci.yml"],
+      "enabled": false
+    }
   ]
 }
