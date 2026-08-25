@@ -23,6 +23,11 @@
       "matchDepNames": ["rust"],
       "matchFileNames": [".github/workflows/ci.yml"],
       "enabled": false
+    },
+    {
+      "description": "Supply-chain cooldown: soak every update for 3 days before it may merge (auto-merges included), so a freshly-published or yanked release can't land the same day it appears — fitting for a supply-chain tool. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null).",
+      "matchPackageNames": ["*"],
+      "minimumReleaseAge": "3 days"
     }
   ]
 }
