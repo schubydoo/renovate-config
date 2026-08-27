@@ -8,8 +8,6 @@
     "**/bower_components/**",
     "**/examples/**",
     "**/__tests__/**",
-    "**/test/**",
-    "**/tests/**",
     "**/__fixtures__/**"
   ],
   "customManagers": [
@@ -264,6 +262,17 @@
         "digest"
       ],
       "automerge": true
+    },
+    {
+      "description": "The browser-e2e tooling lockfile (tests/e2e/package.json: agent-browser + @puppeteer/browsers). Renovate's stock ignorePaths carried `**/tests/**`, which hid this file from every manager, so agent-browser sat at 0.27.1 from 2026-06 to 2026-08 while newer releases ran the suite 2.5-4 min faster; that ignore is dropped above (these two files are the only version-bearing ones under tests/). Never auto-merge: the e2e leg is a NON-required check, so a bump must be merged by a human who reads the run's rerun (`R`) marks, not the check colour. Each CLI bump stays its own PR (no group) so it gets its own e2e verdict — the base `npm (non-major)` group would otherwise fold it in once it leaves 0.x. The suite's driver carries the two guards a newer CLI needs (clauster PR 1270 lineage: click_run waits for the launch popover to close; goto retries the daemon-startup race on the session's first command). Last on purpose: later rules win per field.",
+      "matchFileNames": [
+        "tests/e2e/package.json"
+      ],
+      "groupName": null,
+      "automerge": false,
+      "labels": [
+        "e2e-tooling"
+      ]
     }
   ]
 }
