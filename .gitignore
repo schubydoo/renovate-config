@@ -1,7 +1,9 @@
 node_modules/
 
 # Local agent/editor tooling state (host-specific; not part of the config repo)
-.claude/
+/.claude/
+/.worktreeinclude
+/scratch/
 CLAUDE.local.md
 .local/
 .serena/
