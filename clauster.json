@@ -264,7 +264,7 @@
       "automerge": true
     },
     {
-      "description": "The two .clusterfuzzlite exports are GENERATED hash-pinned locks (requirements.txt from `uv export --frozen` off uv.lock; build-requirements.txt from `uv pip compile --generate-hashes` off the hatchling pin — see clauster's build.sh for both commands). pip_requirements must NOT touch them: it cannot recompute --hash lines (fatal under --require-hashes, same shape as the docs/requirements.txt rules in claustrum/podspine/withe), and a bump here without moving uv.lock fails clauster's test_cflite_requirements_export_is_fresh guard, whose fix reverts the bump — an unmergeable oscillation. Regeneration rides the PR that moves uv.lock (manual until a postUpgradeTask lands: needs uv in the CE image + RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS).",
+      "description": "The two .clusterfuzzlite exports are GENERATED hash-pinned locks (requirements.txt from `uv export --frozen` off uv.lock; build-requirements.txt from `uv pip compile --generate-hashes` off the hatchling pin — see clauster's build.sh for both commands). pip_requirements must NOT touch them: it cannot recompute --hash lines (fatal under --require-hashes, same shape as the docs/requirements.txt rules in claustrum/podspine/withe), and a bump here without moving uv.lock fails clauster's test_cflite_requirements_export_is_fresh guard, whose fix reverts the bump — an unmergeable oscillation. Regeneration rides the PR that moves uv.lock, automated by the pep621 postUpgradeTask below.",
       "matchManagers": [
         "pip_requirements"
       ],
@@ -273,6 +273,21 @@
         ".clusterfuzzlite/build-requirements.txt"
       ],
       "enabled": false
+    },
+    {
+      "description": "Regenerate clauster's .clusterfuzzlite/requirements.txt in-branch whenever a PR moves uv.lock — pep621 owns every such update, including the weekly lockFileMaintenance — so clauster's test_cflite_requirements_export_is_fresh guard (required lint check) stays green and the auto-merge queue stays hands-off. ⚠️ The command must keep `--frozen` as its THIRD token: the CE allowlist entry is the unanchored regex `^uv export --frozen` (allowedCommands, née allowedPostUpgradeCommands, set via RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS in the CE host env — verified live 2026-08-30), and --frozen is also what stops uv re-resolving or touching the network during the task. uv 0.12.1 ships in the renovate-ce -full image; RENOVATE_BINARY_SOURCE=global. build-requirements.txt is deliberately NOT regenerated here — it derives from the hand-pinned hatchling version, not uv.lock. No automerge field on purpose: the base policy's per-update-type decisions stay in force, and this rule must not clobber them.",
+      "matchManagers": [
+        "pep621"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "uv export --frozen --no-emit-project --extra pty -o .clusterfuzzlite/requirements.txt"
+        ],
+        "fileFilters": [
+          ".clusterfuzzlite/requirements.txt"
+        ],
+        "executionMode": "branch"
+      }
     },
     {
       "description": "The browser-e2e tooling lockfile (tests/e2e/package.json: agent-browser + @puppeteer/browsers). Renovate's stock ignorePaths carried `**/tests/**`, which hid this file from every manager, so agent-browser sat at 0.27.1 from 2026-06 to 2026-08 while newer releases ran the suite 2.5-4 min faster; that ignore is dropped above (these two files are the only version-bearing ones under tests/). Never auto-merge: the e2e leg is a NON-required check, so a bump must be merged by a human who reads the run's rerun (`R`) marks, not the check colour. Each CLI bump stays its own PR (no group) so it gets its own e2e verdict — the base `npm (non-major)` group would otherwise fold it in once it leaves 0.x. The suite's driver carries the two guards a newer CLI needs (clauster PR 1270 lineage: click_run waits for the launch popover to close; goto retries the daemon-startup race on the session's first command). Last on purpose: later rules win per field.",
