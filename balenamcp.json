@@ -4,7 +4,8 @@
     "local>schubydoo/renovate-config"
   ],
   "postUpdateOptions": [
-    "gomodTidy"
+    "gomodTidy",
+    "gomodUpdateImportPaths"
   ],
   "customManagers": [
     {
