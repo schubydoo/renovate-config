@@ -84,6 +84,17 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned OSV-Scanner release in osv-scanner.yml via github-releases (#1469). Renovate bumps ONLY `OSV_VERSION`; the download URL derives from it in the curl step, so version + URL can't drift. The adjacent `OSV_SHA256` (the linux amd64 asset's checksum) is refreshed IN-BRANCH by the postUpgradeTask (check_binary_dep_pins.py --fix) so version + hash land in one commit; the workflow's own `sha256sum -c` is the fail-loud backstop if the task can't run. Held for review (see packageRules).",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/osv-scanner\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+OSV_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "semver"
     }
   ],
   "customDatasources": {
@@ -163,7 +174,7 @@
       ]
     },
     {
-      "description": "Never auto-merge an actionlint bump: Renovate updates ACTIONLINT_VERSION but CANNOT recompute the adjacent ACTIONLINT_SHA256 (the release's checksums.txt asset digest, not the git-tag digest the hosted App sees). A maintainer refreshes the hash from checksums.txt; until then the actionlint job's `sha256sum -c` fails and blocks the merge — fail-loud, never silent.",
+      "description": "Never auto-merge an actionlint bump: Renovate updates ACTIONLINT_VERSION but CANNOT recompute the adjacent ACTIONLINT_SHA256 (the release's linux amd64 tarball digest, not the git-tag digest the hosted App sees). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites the stale ACTIONLINT_SHA256 in actionlint.yml from GitHub's published asset digest), so version + hash land in one commit. Still no auto-merge: a human eyeballs the refreshed hash, and if CE is down the task can't run — the actionlint job's own `sha256sum -c` then fails loudly, so a stale hash can never silently ship. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchDatasources": [
         "github-releases"
       ],
@@ -173,7 +184,38 @@
       "automerge": false,
       "labels": [
         "binary-dep"
-      ]
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          ".github/workflows/actionlint.yml"
+        ],
+        "executionMode": "branch"
+      }
+    },
+    {
+      "description": "Never auto-merge an OSV-Scanner bump (#1469): Renovate updates OSV_VERSION but CANNOT recompute the adjacent OSV_SHA256 (the linux amd64 asset's file checksum, not the git-tag digest the hosted App sees). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites the stale OSV_SHA256 in osv-scanner.yml from GitHub's published asset digest), so version + hash land in one commit. Still no auto-merge: a human eyeballs the refreshed hash, and if CE is down the task can't run — the workflow's own `sha256sum -c` then fails loudly, so a stale hash can never silently ship. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "google/osv-scanner"
+      ],
+      "automerge": false,
+      "labels": [
+        "binary-dep"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          ".github/workflows/osv-scanner.yml"
+        ],
+        "executionMode": "branch"
+      }
     },
     {
       "description": "Auto-merge patch + minor updates of dev/test tooling once CI passes (a failing check blocks the merge).",
