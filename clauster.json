@@ -306,13 +306,14 @@
       "automerge": true
     },
     {
-      "description": "The two .clusterfuzzlite exports are GENERATED hash-pinned locks (requirements.txt from `uv export --frozen` off uv.lock; build-requirements.txt from `uv pip compile --generate-hashes` off the hatchling pin — see clauster's build.sh for both commands). pip_requirements must NOT touch them: it cannot recompute --hash lines (fatal under --require-hashes, same shape as the docs/requirements.txt rules in claustrum/podspine/withe), and a bump here without moving uv.lock fails clauster's test_cflite_requirements_export_is_fresh guard, whose fix reverts the bump — an unmergeable oscillation. Regeneration rides the PR that moves uv.lock, automated by the pep621 postUpgradeTask below.",
+      "description": "Three GENERATED hash-pinned locks (requirements.txt from `uv export --frozen` off uv.lock; build-requirements.txt from `uv pip compile --generate-hashes` off the hatchling pin — see clauster's build.sh; and .github/gen-fuzzer-stats-requirements.txt from `uv pip compile --generate-hashes` off `coverage>=7,<8`, installed with --require-hashes in cflite_cron's rebuild step). pip_requirements must NOT touch them: it cannot recompute --hash lines (fatal under --require-hashes, same shape as the docs/requirements.txt rules in claustrum/podspine/withe), and a bump to requirements.txt without moving uv.lock fails clauster's test_cflite_requirements_export_is_fresh guard, whose fix reverts the bump — an unmergeable oscillation. requirements.txt regeneration rides the PR that moves uv.lock (the pep621 postUpgradeTask below); build-requirements.txt and gen-fuzzer-stats-requirements.txt are hand-regenerated off their pins.",
       "matchManagers": [
         "pip_requirements"
       ],
       "matchFileNames": [
         ".clusterfuzzlite/requirements.txt",
-        ".clusterfuzzlite/build-requirements.txt"
+        ".clusterfuzzlite/build-requirements.txt",
+        ".github/gen-fuzzer-stats-requirements.txt"
       ],
       "enabled": false
     },
