@@ -1,21 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>schubydoo/renovate-config"
+    "local>schubydoo/renovate-config",
+    "local>schubydoo/renovate-config:zizmor-uv"
   ],
   "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Held for review (vendored) by the base policy.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/security\\.yml$/"
-      ],
-      "matchStrings": [
-        "uv tool install zizmor==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "depNameTemplate": "zizmor",
-      "datasourceTemplate": "pypi"
-    },
     {
       "customType": "regex",
       "description": "uv version (pinned in Dockerfile ARG UV_VERSION). Tracked from PyPI for the version list; the Dockerfile downloads the matching per-arch uv binary via wget from GitHub releases with a `sha256sum -c` check (the official ghcr.io/astral-sh/uv image lacks an armv7 manifest, which we still target). The ARG UV_VERSION regex still matches, so tracking works; only this comment was stale.",
