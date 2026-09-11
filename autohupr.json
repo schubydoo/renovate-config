@@ -3,7 +3,6 @@
   "extends": [
     "local>schubydoo/renovate-config"
   ],
-  "commitBody": "Signed-off-by: renokeeper[bot] <308156799+renokeeper[bot]@users.noreply.github.com>",
   "customManagers": [
     {
       "customType": "regex",

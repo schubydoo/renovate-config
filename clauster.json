@@ -265,17 +265,6 @@
       "automerge": true
     },
     {
-      "description": "zizmor (GitHub Actions security auditor) is pinned as ZIZMOR_VERSION in security.yml and tracked via the custom.regex manager above, so the base policy would hold it (vendored, no auto-merge). Auto-merge patch + minor on green CI instead: zizmor gates the required `security` check, so a bump that surfaces new findings fails that check and blocks the merge. Majors stay held for review.",
-      "matchPackageNames": [
-        "zizmor"
-      ],
-      "matchUpdateTypes": [
-        "patch",
-        "minor"
-      ],
-      "automerge": true
-    },
-    {
       "description": "Group all pytest-related updates.",
       "matchPackageNames": [
         "/^pytest/"
