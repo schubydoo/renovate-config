@@ -38,6 +38,16 @@
       "depNameTemplate": "gotestyourself/gotestsum",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track version pins passed to GitHub Actions via a `with: version:` input — the github-actions manager pins only the action's `uses:` SHA, not this input, so the version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:` (the fleet idiom). Covers golangci-lint (ci.yml, golangci/golangci-lint-action) and knope (knope-release.yml + knope-prepare.yml, knope-dev/action). knope's release tags are monorepo-prefixed (knope/vX.Y.Z), so its annotation carries an extractVersion the regex reads per-line; golangci-lint's tags are plain vX.Y.Z and carry none. Both stay held for review (vendored) by the base policy — golangci-lint's version is coupled to .golangci.yml and must never auto-merge.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [
