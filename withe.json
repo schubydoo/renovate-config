@@ -15,6 +15,18 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "uv tool install zizmor==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "zizmor",
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
       "description": "Track the pinned knope release consumed via knope-dev/action's `with: version:` input (knope-release.yml + knope-prepare.yml). The github-actions manager pins the action's `uses:` SHA but not the version: input, so knope drifted silently. Reads the `# renovate:` annotation on the line directly above `version:`. knope's release tags are monorepo-prefixed (knope/vX.Y.Z), so the annotation carries an extractVersion the regex reads per-line. Held for review (vendored) by the base policy — a release tool, reviewed not auto-merged.",
       "managerFilePatterns": [
         "/^\\.github/workflows/knope-(release|prepare)\\.yml$/"
