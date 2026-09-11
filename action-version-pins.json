@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track a tool version passed to a GitHub Action via a `with: version:` input (e.g. knope-dev/action, golangci-lint-action, mlugg/setup-zig). The github-actions manager pins the action's `uses:` SHA but not the version: input, so the tool version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:`, with an optional per-line extractVersion (knope's release tags are monorepo-prefixed knope/vX.Y.Z). Scoped to the workflows that carry these pins. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
+    }
+  ]
+}

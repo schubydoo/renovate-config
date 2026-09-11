@@ -17,10 +17,18 @@ without file arguments proves nothing.
 
 ## Architecture
 
-- `default.json` — base policy that every named preset extends.
-- `<repo>.json` — per-repo preset: extends the base, adds that repo's custom managers and overrides.
-- The `<repo>.json` files present here are the **complete** fleet. A repo without one is excluded
-  deliberately (forks, clones, packaging taps, static sites) — do not propose onboarding it.
+- `default.json` — base policy that every per-repo preset extends.
+- `<repo>.json` — per-repo preset: extends the base (and any building-block presets below), adds that
+  repo's custom managers and overrides.
+- **Building-block presets** — shared fragments a repo composes via `extends` to avoid copy-paste
+  drift. Not repos. Current set: `mkdocs-docs.json` (hash-pinned docs lock: pip-compile block +
+  disable pip_requirements on the lock + docs-toolchain group), `zizmor-uv.json` (the
+  `uv tool install zizmor==` manager), `action-version-pins.json` (the annotated `with: version:`
+  manager for knope / golangci-lint / setup-zig). `customManagers` and `packageRules` concatenate
+  across extended presets, so a repo gets the union of the base, the building blocks, and its own.
+- The `<repo>.json` files present here are the **complete** fleet (building-block presets above are
+  NOT repos). A repo without a `<repo>.json` is excluded deliberately (forks, clones, packaging taps,
+  static sites) — do not propose onboarding it.
 
 ## Hard rules
 
