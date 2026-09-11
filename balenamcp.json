@@ -9,6 +9,18 @@
   ],
   "customManagers": [
     {
+      "customType": "regex",
+      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "uv tool install zizmor==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "zizmor",
+      "datasourceTemplate": "pypi"
+    },
+    {
       "description": "Track GREMLINS_VERSION env var in the mutation testing workflows. gremlins is installed at CI runtime via `go install`, so it's neither in go.mod (gomod manager skips it) nor a GitHub Action uses: line (github-actions manager skips it). The regex below picks the literal `GREMLINS_VERSION: vX.Y.Z` line and Renovate cross-references it against go-gremlins/gremlins's GitHub releases.",
       "customType": "regex",
       "managerFilePatterns": [
