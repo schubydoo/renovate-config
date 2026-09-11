@@ -75,6 +75,17 @@
       "automerge": true
     },
     {
+      "description": "gotestsum (test-output tool) is pinned as GOTESTSUM_VERSION in ci.yml, not go.mod — keep it on the chore(ci) cadence and auto-merge on green CI, mirroring the gremlins rule above. Without this the base custom.regex rule holds gotestsum (vendored, no automerge) while its twin gremlins auto-merges — a stray asymmetry, not an intentional hold.",
+      "matchPackageNames": [
+        "gotestyourself/gotestsum"
+      ],
+      "commitMessagePrefix": "chore(ci):",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "ci",
+      "groupName": "github-actions",
+      "automerge": true
+    },
+    {
       "description": "docs/requirements.txt is a hash-pinned pip-compile lock (generated from docs/requirements.in). The pip-compile manager updates the .in and regenerates the lock WITH hashes; pip_requirements must NOT touch the lock or it would bump a version without regenerating --hash lines, breaking the --require-hashes install. Keep it disabled for that file.",
       "matchManagers": [
         "pip_requirements"
