@@ -19,12 +19,14 @@
   "automergeStrategy": "squash",
   "prConcurrentLimit": 20,
   "prHourlyLimit": 0,
+  "configMigration": true,
   "hostRules": [
     {
       "matchHost": "github.com",
       "token": "{{ secrets.RENOVATE_GITHUB_COM_TOKEN }}"
     }
   ],
+  "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": [
