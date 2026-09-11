@@ -3,9 +3,6 @@
   "extends": [
     "local>schubydoo/renovate-config"
   ],
-  "pre-commit": {
-    "enabled": true
-  },
   "customManagers": [
     {
       "customType": "regex",
