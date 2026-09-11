@@ -48,9 +48,9 @@
     },
     {
       "customType": "regex",
-      "description": "Track the Zig toolchain version pinned in mlugg/setup-zig's `with: version:` input (ci.yml + knope-release.yml). The github-actions manager pins the action's `uses:` SHA but not this input, so the Zig version drifted silently. Reads the `# renovate:` annotation on the line directly above `version:`. Zig release tags are bare (X.Y.Z), so no extractVersion. Held for review (vendored) by the base policy, mirroring podspine's Zig pin. NB: the Zig version is coupled to the cargo-zigbuild pin above (cargo-zigbuild tracks Zig's breaking CLI), so a Zig bump can need a paired cargo-zigbuild bump — review them together.",
+      "description": "Track version pins passed to GitHub Actions via a `with: version:` input — the github-actions manager pins only the action's `uses:` SHA, not this input, so the version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:` (the fleet idiom). Covers mlugg/setup-zig's Zig toolchain (ci.yml + knope-release.yml) and knope-dev/action (knope-release.yml + knope-prepare.yml). Zig tags are bare (X.Y.Z, no extractVersion); knope tags are monorepo-prefixed (knope/vX.Y.Z), so its annotation carries an extractVersion the regex reads per-line. All held for review (vendored) by the base policy, mirroring podspine's Zig pin. NB: the Zig version is coupled to the cargo-zigbuild pin above (cargo-zigbuild tracks Zig's breaking CLI), so a Zig bump can need a paired cargo-zigbuild bump — review them together.",
       "managerFilePatterns": [
-        "/^\\.github/workflows/(ci|knope-release)\\.yml$/"
+        "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
