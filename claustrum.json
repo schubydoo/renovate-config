@@ -4,7 +4,8 @@
     "local>schubydoo/renovate-config"
   ],
   "postUpdateOptions": [
-    "gomodTidy"
+    "gomodTidy",
+    "gomodUpdateImportPaths"
   ],
   "pip-compile": {
     "description": "Manage the hash-pinned docs lock: read docs/requirements.txt's pip-compile header, bump deps in docs/requirements.in, and regenerate the lock with --generate-hashes.",
