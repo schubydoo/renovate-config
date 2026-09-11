@@ -4,8 +4,10 @@ Centralized [Renovate](https://docs.renovatebot.com/) configuration presets for
 `@schubydoo`'s repositories, consumed by a [self-hosted Renovate CE](https://docs.renovatebot.com/getting-started/running/)
 instance running as the `renokeeper[bot]` GitHub App.
 
-The bot is **cron-driven — webhooks are not installed yet**, so config changes here and
-manual rebase requests are both picked up on the next scheduled run rather than immediately.
+The bot runs on **cron plus inbound GitHub webhooks**. The App webhook reaches the self-hosted
+instance through a Cloudflare Tunnel. A webhook triggers Renovate only for events in the repo that
+emitted them, so a preset edit merged here does not re-evaluate the downstream repos that extend it.
+Those repos pick it up on their own events or the next scheduled run, not immediately.
 Self-hosting is what makes `postUpgradeTasks` usable (the commands must be allow-listed via
 `RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS`); the Mend-hosted app cannot run them.
 
