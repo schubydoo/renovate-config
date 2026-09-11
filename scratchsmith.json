@@ -1,28 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>schubydoo/renovate-config"
+    "local>schubydoo/renovate-config",
+    "local>schubydoo/renovate-config:mkdocs-docs",
+    "local>schubydoo/renovate-config:zizmor-uv",
+    "local>schubydoo/renovate-config:action-version-pins"
   ],
   "internalChecksFilter": "flexible",
-  "pip-compile": {
-    "description": "Manage the hash-pinned docs lock: read docs/requirements.txt's pip-compile header, bump deps in docs/requirements.in, and regenerate the lock with --generate-hashes.",
-    "managerFilePatterns": [
-      "/^docs/requirements\\.txt$/"
-    ]
-  },
   "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Track the zizmor version pinned in security.yml's `uv tool install`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/security\\.yml$/"
-      ],
-      "matchStrings": [
-        "uv tool install zizmor==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "depNameTemplate": "zizmor",
-      "datasourceTemplate": "pypi"
-    },
     {
       "customType": "regex",
       "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases. Renovate bumps ONLY ACTIONLINT_VERSION; the download URL derives from it in the run-script, so version + URL can't drift. The adjacent ACTIONLINT_SHA256 is NOT auto-updated (github-releases exposes the git-tag digest, not the release tarball's checksum), so a bump PR carries a stale hash until it is refreshed by hand from the release's checksums.txt — the actionlint job's own `sha256sum -c` then fails loudly on the mismatch, so a stale hash can never silently ship. Held for review by the base custom.regex rule (no auto-merge, `vendored` label); scratchsmith has no pin-refresh script, so no postUpgradeTask.",
@@ -45,16 +30,6 @@
       ],
       "depNameTemplate": "cargo-zigbuild",
       "datasourceTemplate": "crate"
-    },
-    {
-      "customType": "regex",
-      "description": "Track version pins passed to GitHub Actions via a `with: version:` input — the github-actions manager pins only the action's `uses:` SHA, not this input, so the version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:` (the fleet idiom). Covers mlugg/setup-zig's Zig toolchain (ci.yml + knope-release.yml) and knope-dev/action (knope-release.yml + knope-prepare.yml). Zig tags are bare (X.Y.Z, no extractVersion); knope tags are monorepo-prefixed (knope/vX.Y.Z), so its annotation carries an extractVersion the regex reads per-line. All held for review (vendored) by the base policy, mirroring podspine's Zig pin. NB: the Zig version is coupled to the cargo-zigbuild pin above (cargo-zigbuild tracks Zig's breaking CLI), so a Zig bump can need a paired cargo-zigbuild bump — review them together.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
-      ]
     }
   ],
   "packageRules": [
@@ -73,19 +48,6 @@
       "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
       "matchUpdateTypes": ["digest", "pin", "pinDigest"],
       "minimumReleaseAge": null
-    },
-    {
-      "description": "docs/requirements.txt is a hash-pinned pip-compile lock (generated from docs/requirements.in). The pip-compile manager updates the .in and regenerates the lock WITH hashes; pip_requirements must NOT touch the lock or it would bump a version without regenerating --hash lines, breaking the --require-hashes install. Keep it disabled for that file.",
-      "matchManagers": ["pip_requirements"],
-      "matchFileNames": ["docs/requirements.txt"],
-      "enabled": false
-    },
-    {
-      "description": "Docs toolchain (mkdocs-material + mike + transitive deps) bumps land in one PR via the pip-compile lock; chore(deps) keeps the conventional-title check happy.",
-      "matchManagers": ["pip-compile"],
-      "groupName": "docs toolchain (mkdocs)",
-      "semanticCommitType": "chore",
-      "semanticCommitScope": "deps"
     }
   ]
 }
