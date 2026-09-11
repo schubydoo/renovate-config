@@ -13,6 +13,28 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Track the pinned zizmor (GitHub Actions security auditor) release in security.yml via PyPI. zizmor is installed at CI runtime with `uv tool install \"zizmor==$ZIZMOR_VERSION\"`, so neither the github-actions nor any package manager sees it. The `# renovate:` annotation on the ZIZMOR_VERSION line was live but unread until this manager: clauster.json's other custom managers scope to versions.txt / Dockerfile / e2e.yml / deps.py / ci.yml / release+nightly / actionlint.yml / osv-scanner.yml, none of which match security.yml.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ZIZMOR_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track the uv version pinned in the dev-container's postCreateCommand (`pip install uv==<ver>`). It duplicates the Dockerfile's shipped uv pin but lives in devcontainer.json, which the built-in devcontainer manager parses only for image/features, not postCreateCommand. Dev-container only (not shipped, not CI-gating), so held (vendored) by the base policy as a low-stakes heads-up.",
+      "managerFilePatterns": [
+        "/^\\.devcontainer/devcontainer\\.json$/"
+      ],
+      "matchStrings": [
+        "uv==(?<currentValue>[0-9][^\"'\\s&]*)"
+      ],
+      "depNameTemplate": "uv",
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
       "description": "Track self-hosted (vendored) front-end assets via static/vendor/versions.txt; a PR here is a heads-up to re-vendor the dist files.",
       "managerFilePatterns": [
         "**/static/vendor/versions.txt"
@@ -225,6 +247,17 @@
         "pytest",
         "pytest-cov",
         "pytest-asyncio"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "zizmor (GitHub Actions security auditor) is pinned as ZIZMOR_VERSION in security.yml and tracked via the custom.regex manager above, so the base policy would hold it (vendored, no auto-merge). Auto-merge patch + minor on green CI instead: zizmor gates the required `security` check, so a bump that surfaces new findings fails that check and blocks the merge. Majors stay held for review.",
+      "matchPackageNames": [
+        "zizmor"
       ],
       "matchUpdateTypes": [
         "patch",
