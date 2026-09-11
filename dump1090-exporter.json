@@ -9,7 +9,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "uv version (pinned in Dockerfile ARG). Tracked from PyPI because the Dockerfile installs uv via `pip install uv==<ver>` (the official ghcr.io/astral-sh/uv image lacks an armv7 manifest, which we still target).",
+      "description": "uv version (pinned in Dockerfile ARG UV_VERSION). Tracked from PyPI for the version list; the Dockerfile downloads the matching per-arch uv binary via wget from GitHub releases with a `sha256sum -c` check (the official ghcr.io/astral-sh/uv image lacks an armv7 manifest, which we still target). The ARG UV_VERSION regex still matches, so tracking works; only this comment was stale.",
       "managerFilePatterns": [
         "/^Dockerfile$/"
       ],
