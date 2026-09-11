@@ -22,6 +22,19 @@
       "versioningTemplate": "semver"
     },
     {
+      "description": "Track GOTESTSUM_VERSION in .github/workflows/ci.yml — gotestsum is `go install`-ed at CI runtime to emit test output, so neither the gomod nor github-actions manager sees it (the install leaves go.mod/go.sum untouched, and it is a `run:` step not a `uses:`). Renovate cross-references gotestyourself/gotestsum's GitHub releases — the repo, not the module path gotest.tools/gotestsum, because the datasource is github-releases.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "GOTESTSUM_VERSION:\\s+(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "gotestyourself/gotestsum",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    },
+    {
       "description": "Track BALENA_CLI_VERSION in .balena-cli-version. balena-cli is shelled out at runtime, so it is invisible to the gomod and github-actions managers; this regex picks the literal `BALENA_CLI_VERSION=X.Y.Z` line and Renovate cross-references it against the balena-cli npm package, opening a PR (with the upstream changelog) on each new release to review for parameter drift.",
       "customType": "regex",
       "managerFilePatterns": [
@@ -76,6 +89,21 @@
       "addLabels": [
         "balena-cli"
       ]
+    },
+    {
+      "description": "gotestsum CI-installed tool — keep on the github-actions cadence + labels since the version lives in a workflow file, and auto-merge on green CI (mirrors the gremlins rule above; overrides the base custom.regex vendored hold).",
+      "matchPackageNames": [
+        "gotestyourself/gotestsum"
+      ],
+      "groupName": "github-actions",
+      "commitMessagePrefix": "chore(ci):",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "ci",
+      "addLabels": [
+        "github-actions",
+        "ci"
+      ],
+      "automerge": true
     }
   ]
 }
