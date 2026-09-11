@@ -3,6 +3,7 @@
   "extends": [
     "local>schubydoo/renovate-config"
   ],
+  "internalChecksFilter": "flexible",
   "customManagers": [
     {
       "customType": "regex",
@@ -36,9 +37,14 @@
       "enabled": false
     },
     {
-      "description": "Supply-chain cooldown: soak every update for 3 days before it may merge (auto-merges included), so a freshly-published or yanked release can't land the same day it appears — fitting for a supply-chain tool. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null).",
+      "description": "Supply-chain cooldown: soak every update for 7 days before it may merge (auto-merges included), so a freshly-published or yanked release can't land the same day it appears — fitting for a supply-chain tool. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null).",
       "matchPackageNames": ["*"],
-      "minimumReleaseAge": "3 days"
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "minimumReleaseAge": null
     }
   ]
 }
