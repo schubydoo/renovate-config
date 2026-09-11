@@ -24,6 +24,18 @@
       ],
       "depNameTemplate": "openapi-typescript",
       "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the agent-browser CLI pinned in the e2e job's `npm i -g agent-browser@X.Y.Z`. It is installed globally in the workflow, deliberately kept out of package.json to avoid pulling Chromium into every npm ci, so neither the npm nor github-actions manager sees it. Held (vendored) by the base policy — an intentional heads-up before the e2e driver moves, since the e2e leg is a non-required check a human verifies green.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/e2e\\.yml$/"
+      ],
+      "matchStrings": [
+        "agent-browser@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "agent-browser",
+      "datasourceTemplate": "npm"
     }
   ],
   "packageRules": [
