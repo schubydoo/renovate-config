@@ -15,6 +15,17 @@
       ],
       "depNameTemplate": "zizmor",
       "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases. Renovate bumps ONLY ACTIONLINT_VERSION; the download URL derives from it in the run-script, so version + URL can't drift. The adjacent ACTIONLINT_SHA256 is NOT auto-updated (github-releases exposes the git-tag digest, not the release tarball's checksum), so a bump PR carries a stale hash until it is refreshed by hand from the release's checksums.txt — the actionlint job's own `sha256sum -c` then fails loudly on the mismatch, so a stale hash can never silently ship. Held for review by the base custom.regex rule (no auto-merge, `vendored` label); scratchsmith has no pin-refresh script, so no postUpgradeTask.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/actionlint\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
