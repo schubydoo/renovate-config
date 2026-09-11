@@ -4,6 +4,12 @@
     "local>schubydoo/renovate-config"
   ],
   "internalChecksFilter": "flexible",
+  "pip-compile": {
+    "description": "Manage the hash-pinned docs lock: read docs/requirements.txt's pip-compile header, bump deps in docs/requirements.in, and regenerate the lock with --generate-hashes.",
+    "managerFilePatterns": [
+      "/^docs/requirements\\.txt$/"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -27,6 +33,28 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track cargo-zigbuild, the cross-linker build tool pinned in taiki-e/install-action's `tool:` input in ci.yml and knope-release.yml. github-actions pins the install-action `uses:` SHA but does not parse the `tool:` value, so the pinned build-tool version was invisible. crates.io datasource. Held for review (vendored) by the base policy — a deliberate heads-up before the release build tool moves, matching the actionlint pin.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/(ci|knope-release)\\.yml$/"
+      ],
+      "matchStrings": [
+        "tool: cargo-zigbuild@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "cargo-zigbuild",
+      "datasourceTemplate": "crate"
+    },
+    {
+      "customType": "regex",
+      "description": "Track version pins passed to GitHub Actions via a `with: version:` input — the github-actions manager pins only the action's `uses:` SHA, not this input, so the version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:` (the fleet idiom). Covers mlugg/setup-zig's Zig toolchain (ci.yml + knope-release.yml) and knope-dev/action (knope-release.yml + knope-prepare.yml). Zig tags are bare (X.Y.Z, no extractVersion); knope tags are monorepo-prefixed (knope/vX.Y.Z), so its annotation carries an extractVersion the regex reads per-line. All held for review (vendored) by the base policy, mirroring podspine's Zig pin. NB: the Zig version is coupled to the cargo-zigbuild pin above (cargo-zigbuild tracks Zig's breaking CLI), so a Zig bump can need a paired cargo-zigbuild bump — review them together.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [
@@ -45,6 +73,19 @@
       "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
       "matchUpdateTypes": ["digest", "pin", "pinDigest"],
       "minimumReleaseAge": null
+    },
+    {
+      "description": "docs/requirements.txt is a hash-pinned pip-compile lock (generated from docs/requirements.in). The pip-compile manager updates the .in and regenerates the lock WITH hashes; pip_requirements must NOT touch the lock or it would bump a version without regenerating --hash lines, breaking the --require-hashes install. Keep it disabled for that file.",
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": ["docs/requirements.txt"],
+      "enabled": false
+    },
+    {
+      "description": "Docs toolchain (mkdocs-material + mike + transitive deps) bumps land in one PR via the pip-compile lock; chore(deps) keeps the conventional-title check happy.",
+      "matchManagers": ["pip-compile"],
+      "groupName": "docs toolchain (mkdocs)",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
     }
   ]
 }

@@ -14,6 +14,18 @@
   },
   "customManagers": [
     {
+      "customType": "regex",
+      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "uv tool install zizmor==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "zizmor",
+      "datasourceTemplate": "pypi"
+    },
+    {
       "description": "Track GREMLINS_VERSION in .github/workflows/mutation.yml — gremlins is `go install`-ed at CI runtime, so neither the gomod nor github-actions manager sees it. Renovate cross-references go-gremlins/gremlins's GitHub releases.",
       "customType": "regex",
       "managerFilePatterns": [
@@ -38,6 +50,16 @@
       "depNameTemplate": "gotestyourself/gotestsum",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track version pins passed to GitHub Actions via a `with: version:` input — the github-actions manager pins only the action's `uses:` SHA, not this input, so the version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:` (the fleet idiom). Covers golangci-lint (ci.yml, golangci/golangci-lint-action) and knope (knope-release.yml + knope-prepare.yml, knope-dev/action). knope's release tags are monorepo-prefixed (knope/vX.Y.Z), so its annotation carries an extractVersion the regex reads per-line; golangci-lint's tags are plain vX.Y.Z and carry none. Both stay held for review (vendored) by the base policy — golangci-lint's version is coupled to .golangci.yml and must never auto-merge.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [
@@ -67,6 +89,17 @@
       "description": "Gremlins (mutation testing) is pinned as GREMLINS_VERSION in the workflow file, not go.mod — keep it on the chore(ci) cadence so its PR title passes the conventional-title check.",
       "matchPackageNames": [
         "go-gremlins/gremlins"
+      ],
+      "commitMessagePrefix": "chore(ci):",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "ci",
+      "groupName": "github-actions",
+      "automerge": true
+    },
+    {
+      "description": "gotestsum (test-output tool) is pinned as GOTESTSUM_VERSION in ci.yml, not go.mod — keep it on the chore(ci) cadence and auto-merge on green CI, mirroring the gremlins rule above. Without this the base custom.regex rule holds gotestsum (vendored, no automerge) while its twin gremlins auto-merges — a stray asymmetry, not an intentional hold.",
+      "matchPackageNames": [
+        "gotestyourself/gotestsum"
       ],
       "commitMessagePrefix": "chore(ci):",
       "semanticCommitType": "chore",

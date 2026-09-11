@@ -15,6 +15,28 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "uv tool install zizmor==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "zizmor",
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned knope release consumed via knope-dev/action's `with: version:` input (knope-release.yml + knope-prepare.yml). The github-actions manager pins the action's `uses:` SHA but not the version: input, so knope drifted silently. Reads the `# renovate:` annotation on the line directly above `version:`. knope's release tags are monorepo-prefixed (knope/vX.Y.Z), so the annotation carries an extractVersion the regex reads per-line. Held for review (vendored) by the base policy — a release tool, reviewed not auto-merged.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/knope-(release|prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "Track the openapi-typescript version pinned in the build:client npm script. It is invoked with npx at build time, so it is not a package.json dependency and neither the npm nor github-actions manager sees it.",
       "managerFilePatterns": [
         "/^package\\.json$/"
@@ -23,6 +45,18 @@
         "openapi-typescript@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
       "depNameTemplate": "openapi-typescript",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the agent-browser CLI pinned in the e2e job's `npm i -g agent-browser@X.Y.Z`. It is installed globally in the workflow, deliberately kept out of package.json to avoid pulling Chromium into every npm ci, so neither the npm nor github-actions manager sees it. Held (vendored) by the base policy — an intentional heads-up before the e2e driver moves, since the e2e leg is a non-required check a human verifies green.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/e2e\\.yml$/"
+      ],
+      "matchStrings": [
+        "agent-browser@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "agent-browser",
       "datasourceTemplate": "npm"
     }
   ],

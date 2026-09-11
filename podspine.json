@@ -15,6 +15,16 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Track the pinned knope release consumed via knope-dev/action's `with: version:` input (knope-release.yml + knope-prepare.yml). The github-actions manager pins the action's `uses:` SHA but not the version: input, so knope drifted silently. Reads the `# renovate:` annotation on the line directly above `version:`. knope's release tags are monorepo-prefixed (knope/vX.Y.Z), so the annotation carries an extractVersion the regex reads per-line. Held for review (vendored) by the base policy — a release tool, reviewed not auto-merged.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/knope-(release|prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "Track the pinned Zig toolchain in the setup-zig composite action via github-releases (ziglang/zig). Renovate bumps ONLY ZIG_VERSION; the adjacent ZIG_URL + ZIG_SHA256 are refreshed in-branch by the postUpgradeTask (scripts/update_zig_pin.py --fix) from Zig's download index, so version + URL + digest land in one commit. Zig hosts its tarballs + checksums on ziglang.org, not as GitHub release assets, so the hosted App's git-tag digest is not the file checksum. The action's own `sha256sum --check` is the fail-loud backstop if the task can't run. Held for review (see packageRules).",
       "managerFilePatterns": [
         "/^\\.github/actions/setup-zig/action\\.yml$/"
