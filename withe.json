@@ -15,6 +15,16 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Track the pinned knope release consumed via knope-dev/action's `with: version:` input (knope-release.yml + knope-prepare.yml). The github-actions manager pins the action's `uses:` SHA but not the version: input, so knope drifted silently. Reads the `# renovate:` annotation on the line directly above `version:`. knope's release tags are monorepo-prefixed (knope/vX.Y.Z), so the annotation carries an extractVersion the regex reads per-line. Held for review (vendored) by the base policy — a release tool, reviewed not auto-merged.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/knope-(release|prepare)\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "Track the openapi-typescript version pinned in the build:client npm script. It is invoked with npx at build time, so it is not a package.json dependency and neither the npm nor github-actions manager sees it.",
       "managerFilePatterns": [
         "/^package\\.json$/"
