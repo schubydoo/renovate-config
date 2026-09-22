@@ -89,6 +89,27 @@
         "pinDigest"
       ],
       "minimumReleaseAge": null
+    },
+    {
+      "description": "Hold TypeScript below 7 for lodger's web app. SvelteKit 2.70 supports TypeScript up to 6, so a TypeScript 7 PR would only break `svelte-check` and the build. Remove this rule once SvelteKit's peer range includes TypeScript 7.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7"
+    },
+    {
+      "description": "Move vitest and its @vitest/* plugins in ONE PR. @vitest/coverage-v8 must match vitest's version exactly, so a PR that bumps only one of them breaks `pnpm run test:coverage`. The group applies to every update type, majors included; majors still wait for review under the shared base.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/**"
+      ],
+      "groupName": "vitest"
     }
   ]
 }
