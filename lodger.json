@@ -1,0 +1,94 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>schubydoo/renovate-config",
+    "local>schubydoo/renovate-config:mkdocs-docs",
+    "local>schubydoo/renovate-config:zizmor-uv",
+    "local>schubydoo/renovate-config:action-version-pins"
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Watch crates.io for the next `virt` release. lodger carries a `# renovate:` annotation plus a `virt-crates-io-release-watch = \"<ver>\"` comment line next to the Git pin in Cargo.toml. A bump PR here means upstream published a release, so the Git pin can move back to crates.io once the release contains the reviewed commit. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^Cargo\\.toml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\s+# virt-crates-io-release-watch = \"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned actionlint release in actionlint.yml via github-releases, copied from the scratchsmith preset. Renovate bumps ONLY ACTIONLINT_VERSION; the adjacent ACTIONLINT_SHA256 is NOT auto-updated, so a bump PR carries a stale hash until it is refreshed by hand from the release's checksums.txt, and the job's own `sha256sum -c` fails loudly until then. Held for review (vendored) by the base policy.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/actionlint\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the Simple English plugin pinned in claude-review.yml, copied from the scratchsmith preset. github-actions pins a `uses:` SHA but never reads a `ref:` under `with:`. Held for review (vendored) by the base policy, and that must stay true: the plugin's code runs inside the review step, which holds CLAUDE_CODE_OAUTH_TOKEN, so read the hook sources at the new SHA before merging.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/claude-review\\.yml$/"
+      ],
+      "matchStrings": [
+        "repository:\\s+(?<depName>AminBlg/SimpleEnglish)\\s*\\n\\s+ref:\\s+(?<currentDigest>[0-9a-f]{40})\\s*#\\s*(?<currentValue>v\\S+)"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Hold the MSRV job's Rust toolchain at the DECLARED minimum (Cargo.toml rust-version = 1.95). ci.yml's `build (MSRV 1.95)` job exists to prove the workspace still builds on that floor; tracking it toward stable would silently stop verifying the MSRV. Bump it only with a deliberate rust-version raise. Same rule as scratchsmith.",
+      "matchDepNames": [
+        "rust"
+      ],
+      "matchFileNames": [
+        ".github/workflows/ci.yml"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Hold the `virt` crate's Git pin for review. lodger pins libvirt-rust master by full commit; the cargo manager extracts that `rev =` pin and proposes new master commits as DIGEST updates, which the shared base would auto-merge. Every bump needs the written diff review in lodger's docs/virt-pin.md, so it waits in the queue with the `vendored` label like a custom-manager bump.",
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchDepNames": [
+        "virt"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "vendored"
+      ]
+    },
+    {
+      "description": "Hold Rust toolchain bumps in rust-toolchain.toml (native rust-toolchain manager) for review. lodger pins an exact release instead of `stable`, so moving the toolchain is a deliberate PR: new clippy lints and MSRV-sensitive changes get a human look before merge.",
+      "matchManagers": [
+        "rust-toolchain"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Supply-chain cooldown, copied from scratchsmith: soak every update for 7 days before it may merge (auto-merges included). lodger holds root-equivalent libvirt access on its host, so a freshly published or yanked release must not land the same day. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null).",
+      "matchPackageNames": [
+        "*"
+      ],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
+      "matchUpdateTypes": [
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "minimumReleaseAge": null
+    }
+  ]
+}
