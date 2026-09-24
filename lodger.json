@@ -4,7 +4,8 @@
     "local>schubydoo/renovate-config",
     "local>schubydoo/renovate-config:mkdocs-docs",
     "local>schubydoo/renovate-config:zizmor-uv",
-    "local>schubydoo/renovate-config:action-version-pins"
+    "local>schubydoo/renovate-config:action-version-pins",
+    "local>schubydoo/renovate-config:simple-english-plugin"
   ],
   "pre-commit": {
     "enabled": true
@@ -12,7 +13,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Watch crates.io for the next `virt` release. lodger carries a `# renovate:` annotation plus a `virt-crates-io-release-watch = \"<ver>\"` comment line next to the Git pin in Cargo.toml. A bump PR here means upstream published a release, so the Git pin can move back to crates.io once the release contains the reviewed commit. Held for review (vendored) by the base policy.",
+      "description": "Watch crates.io for the next `virt` release. lodger carries a `# renovate:` annotation plus a `virt-crates-io-release-watch = \"<ver>\"` comment line next to the Git pin in Cargo.toml. A bump PR here means upstream published a release, so the Git pin can move back to crates.io once the release contains the reviewed commit. Held for review (`vendored` label) by the watcher rule below: the PR is a signal to act on, so it must not auto-merge.",
       "managerFilePatterns": [
         "/^Cargo\\.toml$/"
       ],
@@ -22,7 +23,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track the pinned actionlint release in actionlint.yml via github-releases, copied from the scratchsmith preset. Renovate bumps ONLY ACTIONLINT_VERSION; the adjacent ACTIONLINT_SHA256 is NOT auto-updated, so a bump PR carries a stale hash until it is refreshed by hand from the release's checksums.txt, and the job's own `sha256sum -c` fails loudly until then. Held for review (vendored) by the base policy.",
+      "description": "Track the pinned actionlint release in actionlint.yml via github-releases, copied from the scratchsmith preset. Renovate bumps ONLY ACTIONLINT_VERSION; the postUpgradeTask rule below refreshes the adjacent ACTIONLINT_SHA256 in the same commit. If the task cannot run, the job's own `sha256sum -c` fails loudly.",
       "managerFilePatterns": [
         "/^\\.github/workflows/actionlint\\.yml$/"
       ],
@@ -30,17 +31,6 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
-    },
-    {
-      "customType": "regex",
-      "description": "Track the Simple English plugin pinned in claude-review.yml, copied from the scratchsmith preset. github-actions pins a `uses:` SHA but never reads a `ref:` under `with:`. Held for review (vendored) by the base policy, and that must stay true: the plugin's code runs inside the review step, which holds CLAUDE_CODE_OAUTH_TOKEN, so read the hook sources at the new SHA before merging.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/claude-review\\.yml$/"
-      ],
-      "matchStrings": [
-        "repository:\\s+(?<depName>AminBlg/SimpleEnglish)\\s*\\n\\s+ref:\\s+(?<currentDigest>[0-9a-f]{40})\\s*#\\s*(?<currentValue>v\\S+)"
-      ],
-      "datasourceTemplate": "github-tags"
     }
   ],
   "packageRules": [
@@ -61,6 +51,19 @@
       ],
       "matchDepNames": [
         "virt"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "vendored"
+      ]
+    },
+    {
+      "description": "Hold the `virt` crates.io release watcher (the custom manager above). Its PR only moves the watch comment in Cargo.toml; auto-merging it would erase the signal that the Git pin can move back to crates.io.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "virt-crates-io-release"
       ],
       "automerge": false,
       "addLabels": [
@@ -110,6 +113,24 @@
         "@vitest/**"
       ],
       "groupName": "vitest"
+    },
+    {
+      "description": "Refresh the actionlint sha256 in-branch on a version bump: scripts/check_binary_dep_pins.py --fix rewrites ACTIONLINT_SHA256 in actionlint.yml from GitHub's published asset digest (ported from clauster). Auto-merges on green CI under the base policy: actionlint runs only in CI. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "rhysd/actionlint"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          ".github/workflows/actionlint.yml"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }

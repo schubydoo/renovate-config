@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the Simple English plugin pinned in claude-review.yml, which supplies the `@claude review` output style. github-actions pins a `uses:` SHA but never reads a `ref:` under `with:`, so this checkout is invisible to Renovate without this manager. Captures digest + tag to match the `<sha> # <tag>` convention the SHA-pinned actions already use.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/claude-review\\.yml$/"
+      ],
+      "matchStrings": [
+        "repository:\\s+(?<depName>AminBlg/SimpleEnglish)\\s*\\n\\s+ref:\\s+(?<currentDigest>[0-9a-f]{40})\\s*#\\s*(?<currentValue>v\\S+)"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "⚠️ Hold every Simple English plugin bump for review. This is the one pin whose code RUNS INSIDE the review step, which holds CLAUDE_CODE_OAUTH_TOKEN, so read the hook sources at the new SHA before the bump merges. The workflow also verifies the style id still resolves against the new checkout, so a bump that moves the plugin layout fails loudly instead of degrading to the default style.",
+      "matchPackageNames": [
+        "AminBlg/SimpleEnglish"
+      ],
+      "automerge": false
+    }
+  ]
+}

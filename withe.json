@@ -4,7 +4,8 @@
     "local>schubydoo/renovate-config",
     "local>schubydoo/renovate-config:mkdocs-docs",
     "local>schubydoo/renovate-config:zizmor-uv",
-    "local>schubydoo/renovate-config:action-version-pins"
+    "local>schubydoo/renovate-config:action-version-pins",
+    "local>schubydoo/renovate-config:simple-english-plugin"
   ],
   "pre-commit": {
     "enabled": true
@@ -24,7 +25,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track the agent-browser CLI pinned in the e2e job's `npm i -g agent-browser@X.Y.Z`. It is installed globally in the workflow, deliberately kept out of package.json to avoid pulling Chromium into every npm ci, so neither the npm nor github-actions manager sees it. Held (vendored) by the base policy — an intentional heads-up before the e2e driver moves, since the e2e leg is a non-required check a human verifies green.",
+      "description": "Track the agent-browser CLI pinned in the e2e job's `npm i -g agent-browser@X.Y.Z`. It is installed globally in the workflow, deliberately kept out of package.json to avoid pulling Chromium into every npm ci, so neither the npm nor github-actions manager sees it. Follows the base auto-merge policy. The e2e leg is a non-required check, so auto-merge does not wait for it; the nightly run catches a bump that breaks the suite.",
       "managerFilePatterns": [
         "/^\\.github/workflows/e2e\\.yml$/"
       ],

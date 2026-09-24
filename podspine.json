@@ -3,7 +3,8 @@
   "extends": [
     "local>schubydoo/renovate-config",
     "local>schubydoo/renovate-config:mkdocs-docs",
-    "local>schubydoo/renovate-config:action-version-pins"
+    "local>schubydoo/renovate-config:action-version-pins",
+    "local>schubydoo/renovate-config:simple-english-plugin"
   ],
   "pre-commit": {
     "enabled": true
@@ -41,7 +42,10 @@
           ".github/actions/setup-zig/action.yml"
         ],
         "executionMode": "branch"
-      }
+      },
+      "addLabels": [
+        "vendored"
+      ]
     }
   ]
 }

@@ -4,13 +4,14 @@
     "local>schubydoo/renovate-config",
     "local>schubydoo/renovate-config:mkdocs-docs",
     "local>schubydoo/renovate-config:zizmor-uv",
-    "local>schubydoo/renovate-config:action-version-pins"
+    "local>schubydoo/renovate-config:action-version-pins",
+    "local>schubydoo/renovate-config:simple-english-plugin"
   ],
   "internalChecksFilter": "flexible",
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases. Renovate bumps ONLY ACTIONLINT_VERSION; the download URL derives from it in the run-script, so version + URL can't drift. The adjacent ACTIONLINT_SHA256 is NOT auto-updated (github-releases exposes the git-tag digest, not the release tarball's checksum), so a bump PR carries a stale hash until it is refreshed by hand from the release's checksums.txt — the actionlint job's own `sha256sum -c` then fails loudly on the mismatch, so a stale hash can never silently ship. Held for review by the base custom.regex rule (no auto-merge, `vendored` label); scratchsmith has no pin-refresh script, so no postUpgradeTask.",
+      "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases. Renovate bumps ONLY ACTIONLINT_VERSION; the download URL derives from it in the run-script, so version + URL can't drift. The adjacent ACTIONLINT_SHA256 cannot come from Renovate (github-releases exposes the git-tag digest, not the release tarball's checksum), so the postUpgradeTask rule below refreshes it in the same commit. If the task cannot run, the actionlint job's own `sha256sum -c` fails loudly on the mismatch, so a stale hash can never silently ship.",
       "managerFilePatterns": [
         "/^\\.github/workflows/actionlint\\.yml$/"
       ],
@@ -21,7 +22,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track cargo-zigbuild, the cross-linker build tool pinned in taiki-e/install-action's `tool:` input in ci.yml and knope-release.yml. github-actions pins the install-action `uses:` SHA but does not parse the `tool:` value, so the pinned build-tool version was invisible. crates.io datasource. Held for review (vendored) by the base policy — a deliberate heads-up before the release build tool moves, matching the actionlint pin.",
+      "description": "Track cargo-zigbuild, the cross-linker build tool pinned in taiki-e/install-action's `tool:` input in ci.yml and knope-release.yml. github-actions pins the install-action `uses:` SHA but does not parse the `tool:` value, so the pinned build-tool version was invisible. crates.io datasource. Follows the base auto-merge policy: ci.yml builds with it on the PR.",
       "managerFilePatterns": [
         "/^\\.github/workflows/(ci|knope-release)\\.yml$/"
       ],
@@ -30,17 +31,6 @@
       ],
       "depNameTemplate": "cargo-zigbuild",
       "datasourceTemplate": "crate"
-    },
-    {
-      "customType": "regex",
-      "description": "Track the Simple English plugin pinned in claude-review.yml, which supplies the `@claude review` output style. github-actions pins a `uses:` SHA but never reads a `ref:` under `with:`, so this checkout was invisible to Renovate and the workflow comment told the maintainer to bump it BY HAND — it then sat at v2.0.0 while v2.0.2 and v2.1.0 shipped. Captures digest + tag to match the `<sha> # <tag>` convention the SHA-pinned actions already use. ⚠️ Held for review (vendored) by the base policy, and that must stay true here above all: this is the one pin whose code RUNS INSIDE the review step, which holds CLAUDE_CODE_OAUTH_TOKEN, so the hook sources have to be read at the new SHA before the bump merges. The workflow also verifies the style id still resolves against the new checkout, so a bump that moves the plugin layout fails loudly instead of degrading to the default style.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/claude-review\\.yml$/"
-      ],
-      "matchStrings": [
-        "repository:\\s+(?<depName>AminBlg/SimpleEnglish)\\s*\\n\\s+ref:\\s+(?<currentDigest>[0-9a-f]{40})\\s*#\\s*(?<currentValue>v\\S+)"
-      ],
-      "datasourceTemplate": "github-tags"
     }
   ],
   "packageRules": [
@@ -59,6 +49,16 @@
       "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
       "matchUpdateTypes": ["digest", "pin", "pinDigest"],
       "minimumReleaseAge": null
+    },
+    {
+      "description": "Refresh the actionlint sha256 in-branch on a version bump: scripts/check_binary_dep_pins.py --fix rewrites ACTIONLINT_SHA256 in actionlint.yml from GitHub's published asset digest (ported from clauster). Auto-merges on green CI under the base policy: actionlint runs only in CI. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": ["rhysd/actionlint"],
+      "postUpgradeTasks": {
+        "commands": ["python3 scripts/check_binary_dep_pins.py --fix"],
+        "fileFilters": [".github/workflows/actionlint.yml"],
+        "executionMode": "branch"
+      }
     }
   ]
 }

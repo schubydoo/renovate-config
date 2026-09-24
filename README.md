@@ -31,11 +31,11 @@ here, so all dependency policy is edited in **one place**:
   npm min-release-age, weekly lock maintenance) plus `security:openssf-scorecard`
   and `mergeConfidence:all-badges`.
 - Timezone `America/Los_Angeles`; branches refreshed daily (`before 6am`).
-- **Auto-merges** patches, digest re-pins, and stable (`>=1.0`) minor updates.
-- **Holds for review** all majors and `0.x` minors (they sit in the PR queue).
+- **Auto-merges** patches, digest re-pins, and minor updates, `0.x` minors included.
+- **Holds for review** all majors (they sit in the PR queue).
 - GitHub Actions collapse into a single auto-merged `github-actions` PR.
-- Custom/regex-manager (vendored / hand-pinned) bumps never auto-merge by default —
-  a manual re-vendor heads-up — unless a repo opts a trusted datasource back in.
+- Custom/regex-manager bumps follow the same rules. Real vendored items (vendored assets,
+  hand-pinned binaries) carry an explicit per-repo hold and the `vendored` label.
 - The dependency dashboard is disabled fleet-wide.
 
 ## Changelog rate limiting

@@ -73,7 +73,7 @@
       "automerge": true
     },
     {
-      "description": "gotestsum (test-output tool) is pinned as GOTESTSUM_VERSION in ci.yml, not go.mod — keep it on the chore(ci) cadence and auto-merge on green CI, mirroring the gremlins rule above. Without this the base custom.regex rule holds gotestsum (vendored, no automerge) while its twin gremlins auto-merges — a stray asymmetry, not an intentional hold.",
+      "description": "gotestsum (test-output tool) is pinned as GOTESTSUM_VERSION in ci.yml, not go.mod — keep it on the chore(ci) cadence and auto-merge on green CI, mirroring the gremlins rule above. Mirrors the gremlins rule above, so both CI tools ride the github-actions group.",
       "matchPackageNames": [
         "gotestyourself/gotestsum"
       ],
