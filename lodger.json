@@ -78,11 +78,12 @@
       "automerge": false
     },
     {
-      "description": "Supply-chain cooldown, copied from scratchsmith: soak every update for 7 days before it may merge (auto-merges included). lodger holds root-equivalent libvirt access on its host, so a freshly published or yanked release must not land the same day. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null).",
+      "description": "Supply-chain cooldown, copied from scratchsmith: soak every update for 7 days before it may merge (auto-merges included). lodger holds root-equivalent libvirt access on its host, so a freshly published or yanked release must not land the same day. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null). platformAutomerge is off so Renovate does the merge itself: GitHub native auto-merge waits only for required checks, and the soak's `renovate/stability-days` status is not one. See the same rule in scratchsmith.json.",
       "matchPackageNames": [
         "*"
       ],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "7 days",
+      "platformAutomerge": false
     },
     {
       "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
