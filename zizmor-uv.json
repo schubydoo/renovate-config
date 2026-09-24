@@ -3,7 +3,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Held for review (vendored) by the base policy.",
+      "description": "Track the pinned zizmor (GitHub Actions security auditor) version installed in security.yml's `uv tool install zizmor==<ver>`. It is installed via uv at run time, so neither the github-actions nor any package manager sees it. Follows the base auto-merge policy: the security job on the PR runs the new zizmor.",
       "managerFilePatterns": [
         "/^\\.github/workflows/security\\.yml$/"
       ],

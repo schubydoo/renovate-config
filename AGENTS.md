@@ -24,7 +24,8 @@ without file arguments proves nothing.
   drift. Not repos. Current set: `mkdocs-docs.json` (hash-pinned docs lock: pip-compile block +
   disable pip_requirements on the lock + docs-toolchain group), `zizmor-uv.json` (the
   `uv tool install zizmor==` manager), `action-version-pins.json` (the annotated `with: version:`
-  manager for knope / golangci-lint / setup-zig). `customManagers` and `packageRules` concatenate
+  manager for knope / golangci-lint / setup-zig, plus the knope hold), `simple-english-plugin.json`
+  (the claude-review.yml Simple English plugin pin, always held). `customManagers` and `packageRules` concatenate
   across extended presets, so a repo gets the union of the base, the building blocks, and its own.
 - The `<repo>.json` files present here are the **complete** fleet (building-block presets above are
   NOT repos). A repo without a `<repo>.json` is excluded deliberately (forks, clones, packaging taps,
@@ -34,10 +35,13 @@ without file arguments proves nothing.
 
 - **`packageRules` order decides behavior.** Later matching rules override earlier ones per field.
   Read the whole array before concluding which rule wins.
-- **The `custom.regex` rule is LAST in `default.json`** and sets `automerge: false`. It overrides
-  the earlier patch/digest automerge rules for every regex-managed dependency.
-- A PR carrying the **`vendored`** label was held by that rule — not by CI, not by a missing
-  approval. Check the label before investigating checks.
+- **A `custom.regex` dependency follows the same update-type policy as every other dependency.**
+  The base has no custom-manager hold. Some pins must wait for review: a sha256 pin without a
+  refresh task, a release-only tool, or a drift or release watcher. When you add a manager for
+  such a pin, add an explicit `automerge: false` rule for it too.
+- A PR with the **`vendored`** label waits because of an explicit per-repo hold for a real
+  vendored item (vendored assets, hand-pinned binaries, the lodger `virt` pin). CI and approvals
+  did not hold it. Look at the label before you investigate checks.
 - **Never edit `default.json` to unblock a single repo.** Add a later rule in that repo's
   `<repo>.json` and scope it with `matchUpdateTypes` so the base hold still applies elsewhere.
 - A per-repo `groupName` / `postUpgradeTasks` rule does **not** re-enable `automerge`. Set it explicitly.

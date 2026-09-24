@@ -61,7 +61,7 @@
       "enabled": true
     },
     {
-      "description": "Gremlins CI-installed tool — keep on the github-actions cadence + labels since the version lives in workflow files.",
+      "description": "Gremlins CI-installed tool — keep on the github-actions cadence since the version lives in workflow files.",
       "matchPackageNames": [
         "go-gremlins/gremlins"
       ],
@@ -69,10 +69,6 @@
       "commitMessagePrefix": "chore(ci):",
       "semanticCommitType": "chore",
       "semanticCommitScope": "ci",
-      "addLabels": [
-        "github-actions",
-        "ci"
-      ],
       "automerge": true
     },
     {
@@ -89,10 +85,11 @@
       "semanticCommitScope": "deps",
       "addLabels": [
         "balena-cli"
-      ]
+      ],
+      "automerge": false
     },
     {
-      "description": "gotestsum CI-installed tool — keep on the github-actions cadence + labels since the version lives in a workflow file, and auto-merge on green CI (mirrors the gremlins rule above; overrides the base custom.regex vendored hold).",
+      "description": "gotestsum CI-installed tool — keep on the github-actions cadence since the version lives in a workflow file, and auto-merge on green CI (mirrors the gremlins rule above).",
       "matchPackageNames": [
         "gotestyourself/gotestsum"
       ],
@@ -100,10 +97,6 @@
       "commitMessagePrefix": "chore(ci):",
       "semanticCommitType": "chore",
       "semanticCommitScope": "ci",
-      "addLabels": [
-        "github-actions",
-        "ci"
-      ],
       "automerge": true
     }
   ]

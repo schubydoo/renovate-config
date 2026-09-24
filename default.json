@@ -140,22 +140,11 @@
       "automerge": true
     },
     {
-      "description": "Auto-merge minor only for stable (>=1.0) packages; 0.x minors and all majors stay reviewable in the queue.",
+      "description": "Auto-merge minor updates, 0.x included (for example 0.22 -> 0.23). CI must pass first, and a breaking 0.x change usually fails the build. Majors stay reviewable in the queue.",
       "matchUpdateTypes": [
         "minor"
       ],
-      "matchCurrentVersion": "!/^0\\./",
       "automerge": true
-    },
-    {
-      "description": "Custom/regex-manager bumps (vendored assets, hand-pinned binaries) are a manual re-vendor heads-up: never auto-merge by default. A repo overrides this for a datasource it trusts (e.g. Alpine apk via repology).",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "automerge": false,
-      "addLabels": [
-        "vendored"
-      ]
     }
   ]
 }
