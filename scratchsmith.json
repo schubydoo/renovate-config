@@ -41,9 +41,10 @@
       "enabled": false
     },
     {
-      "description": "Supply-chain cooldown: soak every update for 7 days before it may merge (auto-merges included), so a freshly-published or yanked release can't land the same day it appears — fitting for a supply-chain tool. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null).",
+      "description": "Supply-chain cooldown: soak every update for 7 days before it may merge (auto-merges included), so a freshly-published or yanked release can't land the same day it appears — fitting for a supply-chain tool. Security fixes stay immediate via the shared default's vulnerabilityAlerts (minimumReleaseAge: null). platformAutomerge is off so Renovate does the merge itself: GitHub native auto-merge waits only for required checks, and the soak's `renovate/stability-days` status is not one, so GitHub merged oci-client 0.18 (scratchsmith PR 186) 37 hours before its soak ended.",
       "matchPackageNames": ["*"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "7 days",
+      "platformAutomerge": false
     },
     {
       "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
