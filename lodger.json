@@ -31,6 +31,30 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy: the pull request re-runs release-build.yml as a dry run, which builds in the new Rocky image and starts the binary on each distribution.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/release-build\\.yml$/"
+      ],
+      "matchStrings": [
+        "(?:ROCKY_IMAGE: |image: \")(?<depName>[a-z0-9][a-z0-9./-]*):(?<currentValue>[a-z0-9][a-z0-9._-]*)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the rustup-init version that lodger's scripts/release/build.sh downloads in the Rocky 9 container. The adjacent RUSTUP_SHA256 has no refresh task, so the hold rule below keeps each bump for review: the reviewer copies the new hash from https://static.rust-lang.org/rustup/archive/<version>/x86_64-unknown-linux-gnu/rustup-init.sha256.",
+      "managerFilePatterns": [
+        "/^scripts/release/build\\.sh$/"
+      ],
+      "matchStrings": [
+        "RUSTUP_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "rust-lang/rustup",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -132,6 +156,19 @@
         ],
         "executionMode": "branch"
       }
+    },
+    {
+      "description": "Hold the rustup-init bump (the custom manager above) for review. Its RUSTUP_SHA256 must change in the same pull request, by hand, or build.sh fails at `sha256sum -c` and no release can build.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "rust-lang/rustup"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "vendored"
+      ]
     }
   ]
 }
