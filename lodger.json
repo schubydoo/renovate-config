@@ -141,6 +141,25 @@
       "allowedVersions": "<7"
     },
     {
+      "description": "Keep each distribution image of lodger's release build and installer smoke test on its own release, and move only its digest. Each matrix row names one release (Debian 12, Fedora 44, Rocky 9), and the Rocky 9 build image sets the glibc floor of the release binary. A tag bump would test another release under the old name: fedora:46 is Rawhide, for example. A person adds a row for a new release.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchFileNames": [
+        ".github/workflows/release-build.yml",
+        ".github/workflows/installer-smoke.yml"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Move vitest and its @vitest/* plugins in ONE PR. @vitest/coverage-v8 must match vitest's version exactly, so a PR that bumps only one of them breaks `pnpm run test:coverage`. The group applies to every update type, majors included; majors still wait for review under the shared base.",
       "matchManagers": [
         "npm"
