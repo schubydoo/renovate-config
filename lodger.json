@@ -34,12 +34,24 @@
     },
     {
       "customType": "regex",
-      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy: the pull request re-runs release-build.yml as a dry run, which builds in the new Rocky image and starts the binary on each distribution.",
+      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy: the pull request re-runs release-build.yml as a dry run, which builds in the new Rocky image and starts the binary on each distribution. installer-smoke.yml writes the same images in its smoke matrix, so the same pattern tracks them there and a bump keeps both files in step.",
       "managerFilePatterns": [
-        "/^\\.github/workflows/release-build\\.yml$/"
+        "/^\\.github/workflows/release-build\\.yml$/",
+        "/^\\.github/workflows/installer-smoke\\.yml$/"
       ],
       "matchStrings": [
         "(?:ROCKY_IMAGE: |image: \")(?<depName>[a-z0-9][a-z0-9./-]*):(?<currentValue>[a-z0-9][a-z0-9._-]*)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the 3 container images of lodger's reverse proxy test (scripts/proxy-smoke.sh): nginx, Caddy, and curl, each written `<NAME>_IMAGE=<image>:<tag>@sha256:<digest>`. A bump re-runs proxy-smoke.yml on the pull request, which logs in through each proxy with the documented configurations.",
+      "managerFilePatterns": [
+        "/^scripts/proxy-smoke\\.sh$/"
+      ],
+      "matchStrings": [
+        "[A-Z]+_IMAGE=(?<depName>[a-z0-9][a-z0-9./-]*):(?<currentValue>[a-z0-9][a-z0-9._-]*)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "datasourceTemplate": "docker"
     },
