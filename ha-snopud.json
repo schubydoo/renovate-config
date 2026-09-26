@@ -1,0 +1,7 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "ha-snopud: Home Assistant custom integration. Its dependencies are the SHA-pinned GitHub Actions (hassfest and the HACS action follow their master/main branch by digest) and the pytest-homeassistant-custom-component pin in requirements_test.txt, which moves with each Home Assistant release. The base policy covers all of them.",
+  "extends": [
+    "local>schubydoo/renovate-config"
+  ]
+}
