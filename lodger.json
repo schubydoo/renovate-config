@@ -34,10 +34,11 @@
     },
     {
       "customType": "regex",
-      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy: the pull request re-runs release-build.yml as a dry run, which builds in the new Rocky image and starts the binary on each distribution. installer-smoke.yml writes the same images in its smoke matrix, so the same pattern tracks them there and a bump keeps both files in step.",
+      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy: the pull request re-runs release-build.yml as a dry run, which builds in the new Rocky image and starts the binary on each distribution. installer-smoke.yml writes the same images in its smoke matrix, so the same pattern tracks them there and a bump keeps both files in step. bootstrap.yml writes its Ubuntu images in the same form in its bootstrap matrix, and the native github-actions manager cannot read `container: image: ${{ matrix.image }}`, so the pattern tracks that file too.",
       "managerFilePatterns": [
         "/^\\.github/workflows/release-build\\.yml$/",
-        "/^\\.github/workflows/installer-smoke\\.yml$/"
+        "/^\\.github/workflows/installer-smoke\\.yml$/",
+        "/^\\.github/workflows/bootstrap\\.yml$/"
       ],
       "matchStrings": [
         "(?:ROCKY_IMAGE: |image: \")(?<depName>[a-z0-9][a-z0-9./-]*):(?<currentValue>[a-z0-9][a-z0-9._-]*)@(?<currentDigest>sha256:[a-f0-9]{64})"
@@ -141,7 +142,7 @@
       "allowedVersions": "<7"
     },
     {
-      "description": "Keep each distribution image of lodger's release build and installer smoke test on its own release, and move only its digest. Each matrix row names one release (Debian 12, Fedora 44, Rocky 9), and the Rocky 9 build image sets the glibc floor of the release binary. A tag bump would test another release under the old name: fedora:46 is Rawhide, for example. A person adds a row for a new release.",
+      "description": "Keep each distribution image of lodger's release build, installer smoke test, and bootstrap test on its own release, and move only its digest. Each matrix row names one release (Debian 12, Fedora 44, Rocky 9, Ubuntu 24.04), and the Rocky 9 build image sets the glibc floor of the release binary. A tag bump would test another release under the old name: fedora:46 is Rawhide, for example. It would also drop a release that the docs still support: lodger PR 86 tried to move the only bootstrap test from Ubuntu 24.04 to 26.04. A person adds a row for a new release.",
       "matchManagers": [
         "custom.regex"
       ],
@@ -150,7 +151,8 @@
       ],
       "matchFileNames": [
         ".github/workflows/release-build.yml",
-        ".github/workflows/installer-smoke.yml"
+        ".github/workflows/installer-smoke.yml",
+        ".github/workflows/bootstrap.yml"
       ],
       "matchUpdateTypes": [
         "major",
