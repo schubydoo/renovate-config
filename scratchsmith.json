@@ -46,8 +46,8 @@
       "platformAutomerge": false
     },
     {
-      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
-      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak. Replacements are exempt too: no rule sets automerge for them, so a person reviews and merges each one, and the soak status would only stay pending on a PR that Renovate never merges.",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest", "replacement"],
       "minimumReleaseAge": null
     },
     {
