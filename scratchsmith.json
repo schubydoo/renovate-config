@@ -7,7 +7,6 @@
     "local>schubydoo/renovate-config:action-version-pins",
     "local>schubydoo/renovate-config:simple-english-plugin"
   ],
-  "internalChecksFilter": "flexible",
   "customManagers": [
     {
       "customType": "regex",
