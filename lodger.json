@@ -123,11 +123,12 @@
       "platformAutomerge": false
     },
     {
-      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak. They have no soak to wait for, so GitHub native auto-merge is on again for them. It waits only for the required checks. The Renovate-side merge needs every check run on the commit to be green, and one cancelled run of a workflow with `cancel-in-progress` stops it: lodger PR 129 waited 9 hours with green required checks.",
+      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak. They have no soak to wait for, so GitHub native auto-merge is on again for them. It waits only for the required checks. The Renovate-side merge needs every check run on the commit to be green, and one cancelled run of a workflow with `cancel-in-progress` stops it: lodger PR 129 waited 9 hours with green required checks. Replacements are exempt from the soak too: no rule sets automerge for them, so a person reviews and merges each one, and `platformAutomerge` has no effect on them.",
       "matchUpdateTypes": [
         "digest",
         "pin",
-        "pinDigest"
+        "pinDigest",
+        "replacement"
       ],
       "minimumReleaseAge": null,
       "platformAutomerge": true
