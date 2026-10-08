@@ -123,13 +123,14 @@
       "platformAutomerge": false
     },
     {
-      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak.",
+      "description": "Digests and pins carry no release date, so the release-age soak can never pass and Renovate would suppress or never merge them. Exempt them from the soak. They have no soak to wait for, so GitHub native auto-merge is on again for them. It waits only for the required checks. The Renovate-side merge needs every check run on the commit to be green, and one cancelled run of a workflow with `cancel-in-progress` stops it: lodger PR 129 waited 9 hours with green required checks.",
       "matchUpdateTypes": [
         "digest",
         "pin",
         "pinDigest"
       ],
-      "minimumReleaseAge": null
+      "minimumReleaseAge": null,
+      "platformAutomerge": true
     },
     {
       "description": "Hold TypeScript below 7 for lodger's web app. SvelteKit 2.70 supports TypeScript up to 6, so a TypeScript 7 PR would only break `svelte-check` and the build. Remove this rule once SvelteKit's peer range includes TypeScript 7.",
