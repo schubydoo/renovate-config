@@ -1,7 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "ha-snopud: Home Assistant custom integration. Its dependencies are the SHA-pinned GitHub Actions (hassfest and the HACS action follow their master/main branch by digest) and the pytest-homeassistant-custom-component pin in requirements_test.txt, which moves with each Home Assistant release. The base policy covers all of them.",
+  "description": "ha-snopud: Home Assistant custom integration. The base policy covers the SHA-pinned GitHub Actions (hassfest and the HACS action follow their master/main branch by digest), the ruff version passed to astral-sh/ruff-action in tests.yml, and the pytest-homeassistant-custom-component pin in requirements_test.txt, which moves with each Home Assistant release. The building blocks add the knope pin in knope-prepare.yml / knope-release.yml and the Simple English plugin pin in claude-review.yml, both held for review. The pre-commit manager is enabled for the hooks in .pre-commit-config.yaml.",
   "extends": [
-    "local>schubydoo/renovate-config"
+    "local>schubydoo/renovate-config",
+    "local>schubydoo/renovate-config:action-version-pins",
+    "local>schubydoo/renovate-config:simple-english-plugin"
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "description": "Group the two ruff pins so the local hook and CI lint with the same version: the `version:` input of astral-sh/ruff-action in tests.yml (depName `ruff`, read by the github-actions manager) and the astral-sh/ruff-pre-commit hook rev. Without this rule they land in two PRs (github-actions and pre-commit (non-major)) and can drift. This rule only regroups. The base auto-merge policy still applies.",
+      "matchDepNames": [
+        "ruff",
+        "astral-sh/ruff-pre-commit"
+      ],
+      "groupName": "ruff"
+    }
   ]
 }
