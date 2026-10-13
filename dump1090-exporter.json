@@ -68,6 +68,16 @@
         "grafana/grafana"
       ],
       "groupName": "demo stack"
+    },
+    {
+      "description": "Hold the python image of the Dockerfile at 3.14 or lower. The release builds linux/arm/v7 on Alpine. orjson arrives through aioprometheus, and pyproject.toml caps it at `orjson<3.12`, because orjson 3.12.0 stopped publishing musllinux armv7l wheels. orjson publishes Python 3.15 (cp315) musllinux wheels only from 3.12.0, so no orjson version satisfies both and the 3.15 image build fails. The regex allows the tags 3.0 to 3.14, with or without a patch part. A semver range such as `<3.15` rejects three-part tags like `3.14.4-alpine`, because Renovate reads the suffix as a prerelease. Digest updates of the current tag do not go through `allowedVersions`, so they continue. Remove this rule when orjson publishes musllinux armv7l wheels again, or when dump1090-exporter drops linux/arm/v7.",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "python"
+      ],
+      "allowedVersions": "/^3\\.(\\d|1[0-4])(\\.|-|$)/"
     }
   ]
 }
