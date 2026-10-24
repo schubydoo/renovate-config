@@ -1,0 +1,43 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>schubydoo/renovate-config",
+    "local>schubydoo/renovate-config:simple-english-plugin"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the tools that lint.yml installs by version: actionlint (github-releases) and zizmor (pypi). Each pin carries a `# renovate: datasource=... depName=...` comment on the line above its `<NAME>_VERSION:` env value, so one pattern covers both. github-actions never reads these env values.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/lint\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+[A-Z_]+_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Hold every claude-code-action bump for review. Every caller's `@claude review` runs this action on the oauth path, and the hardening (exact allow rules, guard hook, Read denies) depends on its tag-mode tool list and on the CLI version it pins. Before merging, read src/modes/tag/index.ts at the new version and re-run the headless guard and symlink tests.",
+      "matchPackageNames": [
+        "anthropics/claude-code-action"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Hold every Claude Code bump of the `auth: api` path (.github/claude-review/package.json and its lockfile) for review, for the same reason as claude-code-action: the guard hook, the allow rules and the setting-sources isolation must still hold on the new CLI.",
+      "matchFileNames": [
+        ".github/claude-review/**"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Hold actionlint bumps. lint.yml pins ACTIONLINT_SHA256 next to the version, and this repo has no task that refreshes it, so a bump fails the actionlint job's `sha256sum -c` until a person updates the hash in the same PR.",
+      "matchPackageNames": [
+        "rhysd/actionlint"
+      ],
+      "automerge": false
+    }
+  ]
+}
