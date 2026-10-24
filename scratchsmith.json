@@ -30,6 +30,17 @@
       ],
       "depNameTemplate": "cargo-zigbuild",
       "datasourceTemplate": "crate"
+    },
+    {
+      "customType": "regex",
+      "description": "Track container image pins in the Rust test sources, today the Fedora image in tests/pack.rs. The docker manager never reads .rs files, so nothing bumped this pin, and the first pin (on quay.io) was garbage-collected two days after it landed and broke main. Follows the base policy: a digest refresh auto-merges on green CI (the pack tests assert rpm behavior against the image), and a new Fedora release (44 -> 45) is a major and waits for review.",
+      "managerFilePatterns": [
+        "/(^|/)tests/[^/]+\\.rs$/"
+      ],
+      "matchStrings": [
+        "\"(?<depName>docker\\.io/[a-z0-9._/-]+):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[a-f0-9]{64})\""
+      ],
+      "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [
