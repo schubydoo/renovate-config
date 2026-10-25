@@ -145,6 +145,20 @@
         "minor"
       ],
       "automerge": true
+    },
+    {
+      "description": "Move each caller's claude-review.yml pin to schubydoo/shared-workflows on the next hourly run, not in the before-6am window. Its own group takes it out of the github-actions group, whose schedule would hold it. A change to the shared workflow is reviewed in the shared-workflows repo before it reaches main, and the callers' checks never run the review workflow, so a nightly wait adds no safety. It is a digest update, so the soak in lodger and scratchsmith already exempts it.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDepNames": [
+        "schubydoo/shared-workflows"
+      ],
+      "groupName": "shared-workflows",
+      "schedule": [
+        "at any time"
+      ],
+      "automerge": true
     }
   ]
 }
