@@ -58,7 +58,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track the rustup-init version that lodger's scripts/release/build.sh downloads in the Rocky 9 container. The adjacent RUSTUP_SHA256 has no refresh task, so the hold rule below keeps each bump for review: the reviewer copies the new hash from https://static.rust-lang.org/rustup/archive/<version>/x86_64-unknown-linux-gnu/rustup-init.sha256.",
+      "description": "Track the rustup-init version that lodger's scripts/release/build.sh downloads in the Rocky 9 container. Renovate bumps ONLY RUSTUP_VERSION; the postUpgradeTask in the hold rule below refreshes the adjacent RUSTUP_SHA256 in the same commit from https://static.rust-lang.org/rustup/archive/<version>/x86_64-unknown-linux-gnu/rustup-init.sha256. If the task cannot run, build.sh fails loudly at `sha256sum -c`.",
       "managerFilePatterns": [
         "/^scripts/release/build\\.sh$/"
       ],
@@ -193,13 +193,22 @@
       }
     },
     {
-      "description": "Hold the rustup-init bump (the custom manager above) for review. Its RUSTUP_SHA256 must change in the same pull request, by hand, or build.sh fails at `sha256sum -c` and no release can build.",
+      "description": "Hold the rustup-init bump (the custom manager above) for review, and refresh its hash in-branch: scripts/check_binary_dep_pins.py --fix rewrites RUSTUP_SHA256 in build.sh from the published rustup-init.sha256. rustup-init goes into the release build, so a person still reviews and merges each bump. The command is the same as the actionlint rule, so it is already on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchManagers": [
         "custom.regex"
       ],
       "matchDepNames": [
         "rust-lang/rustup"
       ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          "scripts/release/build.sh"
+        ],
+        "executionMode": "branch"
+      },
       "automerge": false,
       "addLabels": [
         "vendored"
