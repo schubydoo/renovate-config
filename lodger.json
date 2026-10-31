@@ -175,6 +175,17 @@
       "groupName": "vitest"
     },
     {
+      "description": "Move rusqlite and tokio-rusqlite in ONE PR. Each rusqlite minor links its own libsqlite3-sys, and Cargo allows only one crate to link sqlite3, so lodger's rusqlite must match the one tokio-rusqlite requires. A rusqlite-only bump fails the Cargo.lock update (lodger PR 249: rusqlite 0.41 against tokio-rusqlite 0.8, which requires ^0.40). The group PR stays red until tokio-rusqlite releases a matching version, then both bumps land together and the PR merges under the base policy. No cap, so nothing to remove later.",
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchPackageNames": [
+        "rusqlite",
+        "tokio-rusqlite"
+      ],
+      "groupName": "rusqlite"
+    },
+    {
       "description": "Refresh the actionlint sha256 in-branch on a version bump: scripts/check_binary_dep_pins.py --fix rewrites ACTIONLINT_SHA256 in actionlint.yml from GitHub's published asset digest (ported from clauster). Auto-merges on green CI under the base policy: actionlint runs only in CI. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchDatasources": [
         "github-releases"
