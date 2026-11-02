@@ -1,0 +1,103 @@
+# Keeps the Cloudflare IP list that gates renokeeper webhooks equal to the `hooks`
+# ranges in https://api.github.com/meta. The zone rule blocks every source that is
+# not in the list, so a missing range drops GitHub deliveries with a 403.
+#
+# Needs:
+#   secrets.CF_LISTS_TOKEN  Cloudflare API token, "Account Filter Lists: Edit" only.
+#   vars.CF_ACCOUNT_ID      Cloudflare account that owns the list.
+#   vars.CF_LIST_ID         ID of the `github_hooks` IP list.
+name: sync-github-hook-ips
+on:
+  schedule:
+    - cron: "17 11 * * *"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: sync-github-hook-ips
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Sync the Cloudflare list with GitHub hook ranges
+        env:
+          CF_TOKEN: ${{ secrets.CF_LISTS_TOKEN }}
+          CF_ACCOUNT_ID: ${{ vars.CF_ACCOUNT_ID }}
+          CF_LIST_ID: ${{ vars.CF_LIST_ID }}
+        run: |
+          python3 -I - <<'PY'
+          import ipaddress, json, os, sys, time, urllib.parse, urllib.request
+
+          token = os.environ["CF_TOKEN"]
+          acct, lid = os.environ["CF_ACCOUNT_ID"], os.environ["CF_LIST_ID"]
+          if not (token and acct and lid):
+              sys.exit("CF_LISTS_TOKEN, CF_ACCOUNT_ID or CF_LIST_ID is not set")
+          base = f"https://api.cloudflare.com/client/v4/accounts/{acct}/rules/lists"
+
+          def call(url, method="GET", body=None, headers=None):
+              data = None if body is None else json.dumps(body).encode()
+              req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+              with urllib.request.urlopen(req, timeout=30) as r:  # raises on non-2xx
+                  return json.load(r)
+
+          def cf(path, method="GET", body=None):
+              res = call(base + path, method, body, {
+                  "Authorization": f"Bearer {token}",
+                  "Content-Type": "application/json",
+              })
+              if not res.get("success"):
+                  sys.exit(f"Cloudflare {method} {path} failed: {res.get('errors')}")
+              return res
+
+          def norm(cidr):
+              return str(ipaddress.ip_network(cidr, strict=False))
+
+          def current_items():
+              items, cursor = [], None
+              while True:
+                  q = "?per_page=500" + (f"&cursor={urllib.parse.quote(cursor)}" if cursor else "")
+                  res = cf(f"/{lid}/items{q}")
+                  items += [i["ip"] for i in res["result"]]
+                  cursor = (res.get("result_info") or {}).get("cursors", {}).get("after")
+                  if not cursor:
+                      return {norm(i) for i in items}
+
+          meta = call("https://api.github.com/meta",
+                      headers={"Accept": "application/vnd.github+json"})
+          hooks = meta.get("hooks")
+          if not isinstance(hooks, list) or not hooks:
+              sys.exit("api.github.com/meta returned no `hooks` ranges. Refusing to write.")
+          want = {norm(h) for h in hooks}  # raises on a malformed entry
+          have = current_items()
+
+          print("GitHub hooks:", sorted(want))
+          print("Cloudflare list:", sorted(have))
+          if want == have:
+              print("In sync. Nothing to write.")
+              sys.exit(0)
+          print("Add:", sorted(want - have))
+          print("Remove:", sorted(have - want))
+
+          # Guard: an empty list blocks every webhook. Never shrink the list by half or more.
+          if have and len(want) * 2 <= len(have):
+              sys.exit(f"GitHub returned {len(want)} ranges, the list holds {len(have)}. "
+                       "Refusing to shrink the list this much. Update it by hand if this is real.")
+
+          op = cf(f"/{lid}/items", "PUT",
+                  [{"ip": c, "comment": "GitHub hooks (api.github.com/meta)"} for c in sorted(want)])
+          op_id = op["result"]["operation_id"]
+          for _ in range(30):
+              status = cf(f"/bulk_operations/{op_id}")["result"]
+              if status["status"] == "completed":
+                  break
+              if status["status"] == "failed":
+                  sys.exit(f"Bulk operation failed: {status.get('error')}")
+              time.sleep(2)
+          else:
+              sys.exit(f"Bulk operation {op_id} did not complete in 60 seconds")
+
+          if current_items() != want:
+              sys.exit("The list does not match GitHub after the write")
+          print("Updated the list.")
+          PY

@@ -55,3 +55,13 @@ npx --yes --package renovate -- renovate-config-validator --strict $(git ls-file
 
 The file list is required. Without it the validator checks only `renovate.json`, reports
 success and exits 0, silently skipping every preset.
+
+## Webhook IP list sync
+
+A Cloudflare rule blocks every webhook source that is not in the `github_hooks` IP list.
+The `sync-github-hook-ips` workflow runs daily and copies the `hooks` ranges from
+`https://api.github.com/meta` into that list. It writes nothing when the two match. It refuses
+to write when GitHub returns no ranges, or fewer than half of the ranges that the list holds.
+
+The workflow needs the `CF_LISTS_TOKEN` secret (a Cloudflare API token with
+"Account Filter Lists: Edit" only) and the `CF_ACCOUNT_ID` and `CF_LIST_ID` repo variables.
