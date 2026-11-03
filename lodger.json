@@ -134,6 +134,17 @@
       "platformAutomerge": true
     },
     {
+      "description": "Exempt the claude-review.yml pin to schubydoo/shared-workflows from the soak. A CI workflow in shared-workflows creates a v1.0.N tag on each push to main, so each bump is a patch update that the soak above would hold for 7 days. Schuby owns that repo, and each change gets its review there before it reaches main. GitHub native auto-merge is on again, as for digests. Same rule in scratchsmith.json.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDepNames": [
+        "schubydoo/shared-workflows"
+      ],
+      "minimumReleaseAge": null,
+      "platformAutomerge": true
+    },
+    {
       "description": "Hold TypeScript below 7 for lodger's web app. SvelteKit 2.70 supports TypeScript up to 6, so a TypeScript 7 PR would only break `svelte-check` and the build. Remove this rule once SvelteKit's peer range includes TypeScript 7.",
       "matchManagers": [
         "npm"
