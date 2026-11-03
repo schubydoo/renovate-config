@@ -62,6 +62,12 @@
       "minimumReleaseAge": null
     },
     {
+      "description": "Exempt the claude-review.yml pin to schubydoo/shared-workflows from the soak. A CI workflow in shared-workflows creates a v1.0.N tag on each push to main, so each bump is a patch update that the soak above would hold for 7 days. Schuby owns that repo, and each change gets its review there before it reaches main. Same rule in lodger.json.",
+      "matchManagers": ["github-actions"],
+      "matchDepNames": ["schubydoo/shared-workflows"],
+      "minimumReleaseAge": null
+    },
+    {
       "description": "Refresh the actionlint sha256 in-branch on a version bump: scripts/check_binary_dep_pins.py --fix rewrites ACTIONLINT_SHA256 in actionlint.yml from GitHub's published asset digest (ported from clauster). Auto-merges on green CI under the base policy: actionlint runs only in CI. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchDatasources": ["github-releases"],
       "matchPackageNames": ["rhysd/actionlint"],
