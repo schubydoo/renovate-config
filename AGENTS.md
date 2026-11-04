@@ -10,11 +10,14 @@ that CI pins in `.github/workflows/validate.yml` (needs Docker):
 
 ```
 img=$(sed -n 's/^ *image: *//p' .github/workflows/validate.yml)
-docker run --rm -v "$PWD:/work:ro" -w /work "$img" renovate-config-validator --strict $(git ls-files '*.json')
+docker run --rm -v "$PWD:/work:ro" -w /work "$img" renovate-config-validator --strict --no-global $(git ls-files '*.json')
 ```
 
 Do not use `npx --package renovate` instead: on a Node version that the latest Renovate does not
 declare in `engines`, npm silently installs an old major that rejects current presets.
+
+Keep `--no-global`. Without it, the validator reads listed files as the bot's global
+configuration and accepts global-only options (`allowedCommands`, `onboarding`) in a preset.
 
 **IMPORTANT:** bare `renovate-config-validator --strict` validates only `renovate.json`, prints
 "Config validated successfully", and exits 0. It silently skips every preset. A green run

@@ -19,4 +19,5 @@ jobs:
         run: |
           files=$(git ls-files '*.json')
           echo "Validating:"; echo "$files" | sed 's/^/  - /'
-          renovate-config-validator --strict $files
+          # --no-global: the files are presets and repo configuration, not the bot's global configuration.
+          renovate-config-validator --strict --no-global $files
