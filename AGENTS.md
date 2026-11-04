@@ -5,11 +5,16 @@ Each tracked repo carries a one-line `renovate.json` extending a preset here. Se
 
 ## Critical commands
 
-Validate every preset — **YOU MUST pass the file list**:
+Validate every preset. **YOU MUST pass the file list**. This runs the same Renovate image
+that CI pins in `.github/workflows/validate.yml` (needs Docker):
 
 ```
-npx --yes --package renovate -- renovate-config-validator --strict $(git ls-files '*.json')
+img=$(sed -n 's/^ *image: *//p' .github/workflows/validate.yml)
+docker run --rm -v "$PWD:/work:ro" -w /work "$img" renovate-config-validator --strict $(git ls-files '*.json')
 ```
+
+Do not use `npx --package renovate` instead: on a Node version that the latest Renovate does not
+declare in `engines`, npm silently installs an old major that rejects current presets.
 
 **IMPORTANT:** bare `renovate-config-validator --strict` validates only `renovate.json`, prints
 "Config validated successfully", and exits 0. It silently skips every preset. A green run

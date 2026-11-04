@@ -47,10 +47,13 @@ this repo.
 
 ## Validation
 
-CI runs `renovate-config-validator --strict` on every preset. Run the same thing locally:
+CI runs `renovate-config-validator --strict` on every preset, inside the Renovate container
+image pinned in `.github/workflows/validate.yml`. Renovate updates that pin. To run the same
+check locally with Docker, use the same image:
 
 ```
-npx --yes --package renovate -- renovate-config-validator --strict $(git ls-files '*.json')
+img=$(sed -n 's/^ *image: *//p' .github/workflows/validate.yml)
+docker run --rm -v "$PWD:/work:ro" -w /work "$img" renovate-config-validator --strict $(git ls-files '*.json')
 ```
 
 The file list is required. Without it the validator checks only `renovate.json`, reports
