@@ -32,8 +32,7 @@ without file arguments proves nothing.
   drift. Not repos. Current set: `mkdocs-docs.json` (hash-pinned docs lock: pip-compile block +
   disable pip_requirements on the lock + docs-toolchain group), `zizmor-uv.json` (the
   `uv tool install zizmor==` manager), `action-version-pins.json` (the annotated `with: version:`
-  manager for knope / golangci-lint / setup-zig, plus the knope hold), `simple-english-plugin.json`
-  (the claude-review.yml Simple English plugin pin, always held), `npm-allow-remote.json`
+  manager for knope / golangci-lint / setup-zig, plus the knope hold), `npm-allow-remote.json`
   (Renovate-only `allow-remote=all` npmrc for npm 12 lockfile runs, until npm/cli issue 9800 is fixed). `customManagers` and `packageRules` concatenate
   across extended presets, so a repo gets the union of the base, the building blocks, and its own.
 - The `<repo>.json` files present here are the **complete** fleet (building-block presets above are
