@@ -62,7 +62,7 @@
       "automerge": false
     },
     {
-      "description": "Auto-merge Alpine apk version bumps (repology). Dockerfile.template pins the version only and installs with the fuzzy =~ operator, so a -rN rebuild never breaks the build; Renovate sees and bumps the patch version through the custom manager, gated on CI.",
+      "description": "Auto-merge Alpine apk version bumps (repology). Renovate writes the full version, with the -rN revision, back to Dockerfile.template. Most packages install with the fuzzy =~ operator. libcrypto3, libssl3 and zlib install as a floor with >=. CI gates the merge.",
       "matchDatasources": [
         "repology"
       ],

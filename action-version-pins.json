@@ -3,7 +3,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track a tool version passed to a GitHub Action via a `with: version:` input (e.g. knope-dev/action, golangci-lint-action, mlugg/setup-zig). The github-actions manager pins the action's `uses:` SHA but not the version: input, so the tool version drifts silently. Reads a `# renovate:` annotation on the line directly above `version:`, with an optional per-line extractVersion (knope's release tags are monorepo-prefixed knope/vX.Y.Z). Scoped to the workflows that carry these pins. golangci-lint and setup-zig follow the base auto-merge policy. knope is held by the rule below.",
+      "description": "Track a tool version passed to a GitHub Action via a `with: version:` input (e.g. knope-dev/action, golangci-lint-action, mlugg/setup-zig). The github-actions manager pins the action's `uses:` SHA. For knope-dev/action and mlugg/setup-zig it does not read the `version:` input, so this manager tracks it. Renovate reads the golangci-lint-action `version:` input itself, so an annotation there only opens a second PR for the same bump. Reads a `# renovate:` annotation on the line directly above `version:`, with an optional per-line extractVersion (knope's release tags are monorepo-prefixed knope/vX.Y.Z). Scoped to the workflows that carry these pins. golangci-lint and setup-zig follow the base auto-merge policy. knope is held by the rule below.",
       "managerFilePatterns": [
         "/^\\.github/workflows/(ci|knope-release|knope-prepare)\\.yml$/"
       ],

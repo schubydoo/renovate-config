@@ -61,7 +61,7 @@
       "automerge": true
     },
     {
-      "description": "Per-ecosystem non-major grouping for stable (>=1.0) deps; 0.x stays individual so a breaking 0.x bump never blocks the batch.",
+      "description": "Group non-major updates per ecosystem. For gomod, cargo, npm and python, only stable (1.0 or later) deps join the group. A 0.x dep stays in its own PR, so a breaking 0.x bump never blocks the batch. The docker and pre-commit groups take 0.x deps too.",
       "matchManagers": [
         "gomod"
       ],

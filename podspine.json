@@ -11,21 +11,18 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the pinned Zig toolchain in the setup-zig composite action via github-releases (ziglang/zig). Renovate bumps ONLY ZIG_VERSION; the adjacent ZIG_URL + ZIG_SHA256 are refreshed in-branch by the postUpgradeTask (scripts/update_zig_pin.py --fix) from Zig's download index, so version + URL + digest land in one commit. Zig hosts its tarballs + checksums on ziglang.org, not as GitHub release assets, so the hosted App's git-tag digest is not the file checksum. The action's own `sha256sum --check` is the fail-loud backstop if the task can't run. Held for review (see packageRules).",
+      "description": "Track the pinned Zig toolchain in the setup-zig composite action. Zig moved to Codeberg, so versions come from its tags there (`datasource=forgejo-tags depName=ziglang/zig registryUrl=https://codeberg.org` in the annotation). The old github-releases annotation still matches, but GitHub stopped at 0.15.1. Renovate bumps ONLY ZIG_VERSION; the adjacent ZIG_URL + ZIG_SHA256 are refreshed in-branch by the postUpgradeTask (scripts/update_zig_pin.py --fix) from Zig's download index, so version + URL + digest land in one commit. Zig hosts its tarballs + checksums on ziglang.org, not as GitHub release assets, so the hosted App's git-tag digest is not the file checksum. The action's own `sha256sum --check` is the fail-loud backstop if the task can't run. Held for review (see packageRules).",
       "managerFilePatterns": [
         "/^\\.github/actions/setup-zig/action\\.yml$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+ZIG_VERSION: \"(?<currentValue>[^\"]+)\""
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))? versioning=(?<versioning>\\S+)\\s+ZIG_VERSION: \"(?<currentValue>[^\"]+)\""
       ]
     }
   ],
   "packageRules": [
     {
-      "description": "Never auto-merge a Zig toolchain bump: Renovate updates ZIG_VERSION but CANNOT recompute the adjacent ZIG_URL / ZIG_SHA256 (Zig hosts tarballs + checksums on ziglang.org, not as GitHub release assets). Self-hosted Renovate CE refreshes them in-branch via the postUpgradeTask (scripts/update_zig_pin.py --fix rewrites both from Zig's download index), so version + URL + hash land in one commit. Still no auto-merge: the signed-release build is tag-triggered and never runs on the Renovate PR, so a maintainer dry-runs nightly (workflow_dispatch) before shipping; and if CE is down the task can't run, so the action's own `sha256sum -c` fails loudly. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
-      "matchDatasources": [
-        "github-releases"
-      ],
+      "description": "Never auto-merge a Zig toolchain bump (matched by name only, so the hold stays in force with either the Codeberg or the old GitHub datasource): Renovate updates ZIG_VERSION but CANNOT recompute the adjacent ZIG_URL / ZIG_SHA256 (Zig hosts tarballs + checksums on ziglang.org, not as GitHub release assets). Self-hosted Renovate CE refreshes them in-branch via the postUpgradeTask (scripts/update_zig_pin.py --fix rewrites both from Zig's download index), so version + URL + hash land in one commit. Still no auto-merge: the signed-release build is tag-triggered and never runs on the Renovate PR, so a maintainer dry-runs nightly (workflow_dispatch) before shipping; and if CE is down the task can't run, so the action's own `sha256sum -c` fails loudly. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchPackageNames": [
         "ziglang/zig"
       ],

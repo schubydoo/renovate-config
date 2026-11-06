@@ -9,31 +9,5 @@
   ],
   "pre-commit": {
     "enabled": true
-  },
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Track the openapi-typescript version pinned in the build:client npm script. It is invoked with npx at build time, so it is not a package.json dependency and neither the npm nor github-actions manager sees it.",
-      "managerFilePatterns": [
-        "/^package\\.json$/"
-      ],
-      "matchStrings": [
-        "openapi-typescript@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "depNameTemplate": "openapi-typescript",
-      "datasourceTemplate": "npm"
-    },
-    {
-      "customType": "regex",
-      "description": "Track the agent-browser CLI pinned in the e2e job's `npm i -g agent-browser@X.Y.Z`. It is installed globally in the workflow, deliberately kept out of package.json to avoid pulling Chromium into every npm ci, so neither the npm nor github-actions manager sees it. Follows the base auto-merge policy. The e2e leg is a non-required check, so auto-merge does not wait for it; the nightly run catches a bump that breaks the suite.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/e2e\\.yml$/"
-      ],
-      "matchStrings": [
-        "agent-browser@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "depNameTemplate": "agent-browser",
-      "datasourceTemplate": "npm"
-    }
-  ]
+  }
 }

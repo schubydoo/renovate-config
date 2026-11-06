@@ -7,7 +7,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "uv version (pinned in Dockerfile ARG UV_VERSION). Tracked from PyPI for the version list; the Dockerfile downloads the matching per-arch uv binary via wget from GitHub releases with a `sha256sum -c` check (the official ghcr.io/astral-sh/uv image lacks an armv7 manifest, which we still target). The ARG UV_VERSION regex still matches, so tracking works; only this comment was stale.",
+      "description": "uv version (pinned in Dockerfile ARG UV_VERSION). Tracked from PyPI for the version list; the Dockerfile downloads the matching per-arch uv binary via wget from GitHub releases with a `sha256sum -c` check (the official ghcr.io/astral-sh/uv image lacks an armv7 manifest, which we still target). The regex reads ARG UV_VERSION from the Dockerfile.",
       "managerFilePatterns": [
         "/^Dockerfile$/"
       ],
@@ -42,7 +42,7 @@
       "groupName": "aio-stack"
     },
     {
-      "description": "Group astral-sh/uv updates across the GitHub Action (setup-uv) and the Dockerfile pip-installed package (uv on PyPI) — they release in lockstep. On a uv bump the Dockerfile's per-arch UV_SHA256_* ARGs go stale (Renovate bumps UV_VERSION but can't recompute the companion binary checksums); the postUpgradeTask refreshes them in-branch from the new release's dist-manifest.json, so the bump + hash refresh land in one commit. Self-hosted Renovate CE only (the command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS); replaces the retired renovate-uv-shas.yml follow-up-commit workflow.",
+      "description": "Group astral-sh/uv updates across the GitHub Action (setup-uv) and the uv binary pinned in the Dockerfile (versions come from PyPI). One PR keeps the action and the binary together. On a uv bump the Dockerfile's per-arch UV_SHA256_* ARGs go stale (Renovate bumps UV_VERSION but can't recompute the companion binary checksums); the postUpgradeTask refreshes them in-branch from the new release's dist-manifest.json, so the bump + hash refresh land in one commit. Self-hosted Renovate CE only (the command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS); replaces the retired renovate-uv-shas.yml follow-up-commit workflow.",
       "matchPackageNames": [
         "astral-sh/setup-uv",
         "uv"

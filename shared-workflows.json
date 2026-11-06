@@ -30,7 +30,7 @@
   ],
   "packageRules": [
     {
-      "description": "⚠️ Hold every Simple English plugin bump for review. This is the one pin whose code RUNS INSIDE the review step, which holds CLAUDE_CODE_OAUTH_TOKEN, so read the hook sources at the new SHA before the bump merges. The workflow also verifies the style id still resolves against the new checkout, so a bump that moves the plugin layout fails loudly instead of degrading to the default style.",
+      "description": "⚠️ Hold every Simple English plugin bump for review. Its hooks run inside the review step, next to the review credentials: the Anthropic identity token on the default api path, and CLAUDE_CODE_OAUTH_TOKEN on the oauth path. Read the hook sources at the new SHA before the bump merges. The workflow also verifies the style id still resolves against the new checkout, so a bump that moves the plugin layout fails loudly instead of degrading to the default style.",
       "matchPackageNames": [
         "AminBlg/SimpleEnglish"
       ],
