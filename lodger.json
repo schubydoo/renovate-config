@@ -200,6 +200,28 @@
       "addLabels": [
         "vendored"
       ]
+    },
+    {
+      "description": "Refresh the pnpm release hashes in-branch on a pnpm bump. Renovate's npm manager bumps the packageManager field of web/package.json, and scripts/check_binary_dep_pins.py --fix rewrites PNPM_SHA256_X64 and PNPM_SHA256_ARM64 in scripts/bootstrap.sh from GitHub's published asset digests. So the version and the hashes land in one commit. pnpm gets its own group, because in a group branch Renovate runs only the first update's branch-mode task, and the `npm (non-major)` group sorts pnpm after most packages. If the task cannot run, the binary-dep-pins check and the bootstrap job's own `sha256sum -c` fail loudly. No automerge field on purpose: the base policy and the soak decide. The command is the same as the actionlint and rustup rules, so it is already on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "packageManager"
+      ],
+      "matchDepNames": [
+        "pnpm"
+      ],
+      "groupName": "pnpm",
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          "scripts/bootstrap.sh"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }
