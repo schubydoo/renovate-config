@@ -40,18 +40,6 @@
   ],
   "packageRules": [
     {
-      "description": "slsa-github-generator must be called by semver tag, never a commit SHA — the reusable workflow verifies its own ref at runtime and fails when pinned to a digest (documented in the generator's README: builders/generators MUST be referenced by tag). Keep tag bumps, suppress the pinDigest/digest updates the pin preset would otherwise open.",
-      "matchPackageNames": [
-        "slsa-framework/slsa-github-generator"
-      ],
-      "matchUpdateTypes": [
-        "pinDigest",
-        "pin",
-        "digest"
-      ],
-      "enabled": false
-    },
-    {
       "description": "Indirect gomod deps still get bumped — Go's transitive graph is part of the supply chain.",
       "matchManagers": [
         "gomod"
@@ -73,7 +61,7 @@
       "automerge": true
     },
     {
-      "description": "gotestsum (test-output tool) is pinned as GOTESTSUM_VERSION in ci.yml, not go.mod — keep it on the chore(ci) cadence and auto-merge on green CI, mirroring the gremlins rule above. Mirrors the gremlins rule above, so both CI tools ride the github-actions group.",
+      "description": "gotestsum (test-output tool) is pinned as GOTESTSUM_VERSION in ci.yml, not go.mod — keep it on the chore(ci) cadence and auto-merge on green CI, mirroring the gremlins rule above. Both CI tools ride the github-actions group.",
       "matchPackageNames": [
         "gotestyourself/gotestsum"
       ],

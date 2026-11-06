@@ -7,7 +7,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the Cloudflare Wrangler CLI major pinned in the deploy job's `npx --yes wrangler@4 deploy`. It is invoked via npx at deploy time, so it is not a package.json dependency and neither the npm nor github-actions manager sees it. Renovate opens a PR when a new Wrangler major ships, to review before rolling the deploy tool forward.",
+      "description": "Track the Wrangler major pinned in the dry-run job's `npx --yes wrangler@4 deploy --dry-run`. This job runs only on pull requests. The deploy job uses cloudflare/wrangler-action, and this pin does not change it. It is invoked via npx, so it is not a package.json dependency and neither the npm nor github-actions manager sees it. Renovate opens a PR when a new Wrangler major ships, so you can review it.",
       "managerFilePatterns": [
         "/^\\.github/workflows/deploy-worker\\.yml$/"
       ],

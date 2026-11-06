@@ -11,12 +11,14 @@ Those repos pick it up on their own events or the next scheduled run, not immedi
 Self-hosting is what makes `postUpgradeTasks` usable (the commands must be allow-listed via
 `RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS`); the Mend-hosted app cannot run them.
 
-Every tracked repo carries a one-line `renovate.json` that extends a named preset
+Every tracked repo carries a one-line `renovate.json` that extends its named preset
 here, so all dependency policy is edited in **one place**:
 
 ```json
 { "extends": ["local>schubydoo/renovate-config:<repo>"] }
 ```
+
+This repo's own `renovate.json` extends the base preset directly.
 
 ## Layout
 
@@ -24,6 +26,7 @@ here, so all dependency policy is edited in **one place**:
 | --- | --- |
 | `default.json` | Shared base policy every named preset extends (`local>schubydoo/renovate-config`). |
 | `<repo>.json` | Per-repo preset: `extends` the base and adds that repo's custom managers, holds, and overrides. |
+| `<block>.json` | Building-block preset (for example `zizmor-uv.json`). A repo adds it to `extends` to share a manager or rule. It is not a repo. AGENTS.md lists the current set. |
 
 ## What the base policy does
 
@@ -32,8 +35,10 @@ here, so all dependency policy is edited in **one place**:
   and `mergeConfidence:all-badges`.
 - Timezone `America/Los_Angeles`; branches refreshed daily (`before 6am`).
 - **Auto-merges** patches, digest re-pins, and minor updates, `0.x` minors included.
-- **Holds for review** all majors (they sit in the PR queue).
-- GitHub Actions collapse into a single auto-merged `github-actions` PR.
+- **Holds for review** all majors (they sit in the PR queue). The one exception is the
+  `schubydoo/shared-workflows` pin, which auto-merges at every update type.
+- GitHub Actions collapse into a single auto-merged `github-actions` PR. The claude-review.yml
+  pin to `schubydoo/shared-workflows` has its own PR, and that PR can merge at any hour.
 - Custom/regex-manager bumps follow the same rules. Real vendored items (vendored assets,
   hand-pinned binaries) carry an explicit per-repo hold and the `vendored` label.
 - The dependency dashboard is disabled fleet-wide.
@@ -64,8 +69,8 @@ success and exits 0, silently skipping every preset.
 
 A Cloudflare rule blocks every webhook source that is not in the `github_hooks` IP list.
 The `sync-github-hook-ips` workflow runs daily and copies the `hooks` ranges from
-`https://api.github.com/meta` into that list. It writes nothing when the two match. It refuses
-to write when GitHub returns no ranges, or fewer than half of the ranges that the list holds.
+`https://api.github.com/meta` into that list. It writes nothing when the two match. If GitHub
+returns no ranges, or half or fewer of the ranges that the list holds, it refuses to write.
 
 The workflow needs the `CF_LISTS_TOKEN` secret (a Cloudflare API token with
 "Account Filter Lists: Edit" only) and the `CF_ACCOUNT_ID` and `CF_LIST_ID` repo variables.

@@ -23,7 +23,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy: the pull request re-runs release-build.yml as a dry run, which builds in the new Rocky image and starts the binary on each distribution. installer-smoke.yml writes the same images in its smoke matrix, so the same pattern tracks them there and a bump keeps both files in step. bootstrap.yml writes its Ubuntu images in the same form in its bootstrap matrix, and the native github-actions manager cannot read `container: image: ${{ matrix.image }}`, so the pattern tracks that file too.",
+      "description": "Track the container images of lodger's release build (release-build.yml): the Rocky 9 build image in ROCKY_IMAGE and the 7 distribution images of the start matrix. Each is written `<image>:<tag>@sha256:<digest>`, which no native manager reads inside a matrix. Digest bumps follow the base policy. A bump to an image in release-build.yml re-runs it as a dry run on the pull request. That dry run builds in the new Rocky image and starts the binary on each distribution. installer-smoke.yml writes the same images in its smoke matrix, so the same pattern tracks them there and a bump keeps both files in step. bootstrap.yml writes its Ubuntu images in the same form in its bootstrap matrix, and the native github-actions manager cannot read `container: image: ${{ matrix.image }}`, so the pattern tracks that file too.",
       "managerFilePatterns": [
         "/^\\.github/workflows/release-build\\.yml$/",
         "/^\\.github/workflows/installer-smoke\\.yml$/",
@@ -110,7 +110,7 @@
       "platformAutomerge": true
     },
     {
-      "description": "Exempt the claude-review.yml pin to schubydoo/shared-workflows from the soak. A CI workflow in shared-workflows creates a v1.0.N tag on each push to main, so each bump is a patch update that the soak above would hold for 7 days. Schuby owns that repo, and each change gets its review there before it reaches main. GitHub native auto-merge is on again, as for digests. Same rule in scratchsmith.json.",
+      "description": "Exempt the claude-review.yml pin to schubydoo/shared-workflows from the soak. A CI workflow in shared-workflows creates a v1.0.N tag on each push to main, so each bump is a patch update that the soak above would hold for 7 days. Schuby owns that repo, and each change gets its review there before it reaches main. GitHub native auto-merge is on again, as for digests. scratchsmith.json has the same soak exemption but keeps GitHub native auto-merge off.",
       "matchManagers": [
         "github-actions"
       ],
@@ -121,7 +121,7 @@
       "platformAutomerge": true
     },
     {
-      "description": "Hold TypeScript below 7 for lodger's web app. SvelteKit 2.70 supports TypeScript up to 6, so a TypeScript 7 PR would only break `svelte-check` and the build. Remove this rule once SvelteKit's peer range includes TypeScript 7.",
+      "description": "Hold TypeScript below 7 for lodger's web app. SvelteKit 3 accepts only TypeScript 6 (peer range ^6.0.0), so a TypeScript 7 PR would only break `svelte-check` and the build. Remove this rule once SvelteKit's peer range includes TypeScript 7.",
       "matchManagers": [
         "npm"
       ],
@@ -131,7 +131,7 @@
       "allowedVersions": "<7"
     },
     {
-      "description": "Keep each distribution image of lodger's release build, installer smoke test, and bootstrap test on its own release, and move only its digest. Each matrix row names one release (Debian 12, Fedora 44, Rocky 9, Ubuntu 24.04), and the Rocky 9 build image sets the glibc floor of the release binary. A tag bump would test another release under the old name: fedora:46 is Rawhide, for example. It would also drop a release that the docs still support: lodger PR 86 tried to move the only bootstrap test from Ubuntu 24.04 to 26.04. A person adds a row for a new release.",
+      "description": "Keep each distribution image of lodger's release build, installer smoke test, and bootstrap test on its own release, and move only its digest. Each matrix row names one release, for example Debian 12, Fedora 44, Rocky 9 or Ubuntu 24.04, and the Rocky 9 build image sets the glibc floor of the release binary. A tag bump would test another release under the old name: fedora:46 is Rawhide, for example. It would also drop a release that the docs still support: lodger PR 86 tried to move the only bootstrap test from Ubuntu 24.04 to 26.04. A person adds a row for a new release.",
       "matchManagers": [
         "custom.regex"
       ],
