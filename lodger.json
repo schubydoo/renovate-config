@@ -13,16 +13,6 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Watch crates.io for the next `virt` release. lodger carries a `# renovate:` annotation plus a `virt-crates-io-release-watch = \"<ver>\"` comment line next to the Git pin in Cargo.toml. A bump PR here means upstream published a release, so the Git pin can move back to crates.io once the release contains the reviewed commit. Held for review (`vendored` label) by the watcher rule below: the PR is a signal to act on, so it must not auto-merge.",
-      "managerFilePatterns": [
-        "/^Cargo\\.toml$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\s+# virt-crates-io-release-watch = \"(?<currentValue>[^\"]+)\""
-      ]
-    },
-    {
-      "customType": "regex",
       "description": "Track the pinned actionlint release in actionlint.yml via github-releases, copied from the scratchsmith preset. Renovate bumps ONLY ACTIONLINT_VERSION; the postUpgradeTask rule below refreshes the adjacent ACTIONLINT_SHA256 in the same commit. If the task cannot run, the job's own `sha256sum -c` fails loudly.",
       "managerFilePatterns": [
         "/^\\.github/workflows/actionlint\\.yml$/"
@@ -82,25 +72,12 @@
       "enabled": false
     },
     {
-      "description": "Hold the `virt` crate's Git pin for review. lodger pins libvirt-rust master by full commit; the cargo manager extracts that `rev =` pin and proposes new master commits as DIGEST updates, which the shared base would auto-merge. Every bump needs the written diff review in lodger's docs/virt-pin.md, so it waits in the queue with the `vendored` label like a custom-manager bump.",
+      "description": "Hold every `virt` version bump for review. lodger pins the crates.io release exactly (`virt = \"=X.Y.Z\"`), and the shared base would auto-merge patch and minor bumps. Every bump needs the written diff review in lodger's docs/virt-pin.md, so it waits in the queue with the `vendored` label.",
       "matchManagers": [
         "cargo"
       ],
       "matchDepNames": [
         "virt"
-      ],
-      "automerge": false,
-      "addLabels": [
-        "vendored"
-      ]
-    },
-    {
-      "description": "Hold the `virt` crates.io release watcher (the custom manager above). Its PR only moves the watch comment in Cargo.toml; auto-merging it would erase the signal that the Git pin can move back to crates.io.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "virt-crates-io-release"
       ],
       "automerge": false,
       "addLabels": [
