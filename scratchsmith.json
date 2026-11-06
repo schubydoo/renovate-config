@@ -32,9 +32,10 @@
     },
     {
       "customType": "regex",
-      "description": "Track container image pins in the Rust test sources, today the Fedora image and the registry image in tests/pack.rs. The docker manager never reads .rs files, so nothing bumped these pins, and the first pin (on quay.io) was garbage-collected two days after it landed and broke main. Follows the base policy: a digest refresh auto-merges on green CI (the pack tests assert rpm behavior against the image), and a new major (Fedora 44 -> 45, registry 2 -> 3) waits for review.",
+      "description": "Track container image pins in the Rust test sources, today the Fedora image and the registry image in tests/pack.rs. The same registry pin also sits in the REGISTRY_IMAGE step env of action-selftest.yml (scratchsmith PR 449). It has the same depName, so one Renovate branch moves both pins together. The docker manager never reads .rs files, and the github-actions manager never reads env values, so nothing bumped these pins, and the first pin (on quay.io) was garbage-collected two days after it landed and broke main. Follows the base policy: a digest refresh auto-merges on green CI (the pack tests assert rpm behavior against the image), and a new major (Fedora 44 -> 45, registry 2 -> 3) waits for review.",
       "managerFilePatterns": [
-        "/(^|/)tests/[^/]+\\.rs$/"
+        "/(^|/)tests/[^/]+\\.rs$/",
+        "/^\\.github/workflows/action-selftest\\.yml$/"
       ],
       "matchStrings": [
         "\"(?<depName>docker\\.io/[a-z0-9._/-]+):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[a-f0-9]{64})\""
