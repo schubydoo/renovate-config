@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "ha-snopud: Home Assistant custom integration. The base policy covers the SHA-pinned GitHub Actions (hassfest and the HACS action follow their master/main branch by digest), the ruff version passed to astral-sh/ruff-action in tests.yml, and the pytest-homeassistant-custom-component pin in requirements_test.txt, which moves with each Home Assistant release. The building blocks add the knope pin in knope-prepare.yml / knope-release.yml and the Simple English plugin pin in claude-review.yml, both held for review. The pre-commit manager is enabled for the hooks in .pre-commit-config.yaml.",
+  "description": "ha-snopud: Home Assistant custom integration. The base policy covers the SHA-pinned GitHub Actions (hassfest and the HACS action follow their master/main branch by digest), the ruff version passed to astral-sh/ruff-action in tests.yml, and the pytest-homeassistant-custom-component pin in requirements_test.txt, which moves with each Home Assistant release. The action-version-pins building block adds the knope pin in knope-prepare.yml / knope-release.yml, held for review. The pre-commit manager is enabled for the hooks in .pre-commit-config.yaml.",
   "extends": [
     "local>schubydoo/renovate-config",
     "local>schubydoo/renovate-config:action-version-pins"
