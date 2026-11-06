@@ -5,7 +5,8 @@
     "local>schubydoo/renovate-config:mkdocs-docs",
     "local>schubydoo/renovate-config:zizmor-uv",
     "local>schubydoo/renovate-config:action-version-pins",
-    "local>schubydoo/renovate-config:simple-english-plugin"
+    "local>schubydoo/renovate-config:simple-english-plugin",
+    "local>schubydoo/renovate-config:npm-allow-remote"
   ],
   "pre-commit": {
     "enabled": true
