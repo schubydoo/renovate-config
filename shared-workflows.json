@@ -2,7 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>schubydoo/renovate-config",
-    "local>schubydoo/renovate-config:simple-english-plugin"
+    "local>schubydoo/renovate-config:simple-english-plugin",
+    "local>schubydoo/renovate-config:npm-allow-remote"
   ],
   "customManagers": [
     {

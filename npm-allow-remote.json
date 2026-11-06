@@ -1,0 +1,8 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Let Renovate's npm lockfile runs fetch remote tarballs (allow-remote=all). npm 12 defaults allow-remote to none and skips its registry-host exemption when it extracts a package with bundleDependencies by its resolved URL (npm/cli issue 9800). Renovate then fails with EALLOWREMOTE and pushes package.json without the lockfile. This changes only the .npmrc that Renovate writes for its own `npm install --package-lock-only --ignore-scripts` runs. Developer machines and CI keep the npm 12 default. npmrcMerge appends the line to a repo's committed .npmrc instead of replacing it. Remove this preset, and its extends entries, when npm fixes issue 9800."
+  ],
+  "npmrc": "allow-remote=all",
+  "npmrcMerge": true
+}
