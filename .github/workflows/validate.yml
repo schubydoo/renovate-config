@@ -11,7 +11,7 @@ jobs:
     # The Renovate image ships its own Node, so the runner's Node version does not matter.
     # The image user cannot write the runner workspace, so the job runs as root.
     container:
-      image: ghcr.io/renovatebot/renovate:44.222.0@sha256:a8cb8222b49d15da701436954b7463427d535eae2203b294655c9a29675c47d1
+      image: ghcr.io/renovatebot/renovate:44.222.4@sha256:306316fc9e8c424dde672590699d681f9c8764cc9152141d2c5059956ce1e3b8
       options: --user root
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
