@@ -119,6 +119,28 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+OSV_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned jactionlint (workflow linter and security auditor) release in jactionlint.yml via PyPI. CI installs it at run time with `uv tool install \"jactionlint==$JACTIONLINT_VERSION\"`, so no built-in manager sees it. The `# renovate:` annotation names the datasource and depName. The pre-commit hook pins the same version (next manager), and the jactionlint packageRule groups both into one PR because clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal. Follows the base auto-merge policy: the jactionlint job on the PR runs the new version.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/jactionlint\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+JACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track the jactionlint version in the pre-commit hook entry (`uvx --from jactionlint==<ver> jactionlint ...`). The hook is a `language: system` entry, so the pre-commit manager does not see it, and the line has no `# renovate:` annotation. It must stay equal to the JACTIONLINT_VERSION pin in jactionlint.yml, and the jactionlint packageRule groups both into one PR.",
+      "managerFilePatterns": [
+        "/^\\.pre-commit-config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "uvx --from jactionlint==(?<currentValue>[0-9][^\\s\"']*)"
+      ],
+      "depNameTemplate": "jactionlint",
+      "datasourceTemplate": "pypi"
     }
   ],
   "customDatasources": {
@@ -377,6 +399,19 @@
         "major"
       ],
       "automerge": true
+    },
+    {
+      "description": "Bump both jactionlint pins (the JACTIONLINT_VERSION env var in jactionlint.yml and the pre-commit hook entry) in one PR. clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal, so a PR that moves only one fails CI. groupName does not change automerge: the base policy applies.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "pypi"
+      ],
+      "matchPackageNames": [
+        "jactionlint"
+      ],
+      "groupName": "jactionlint"
     }
   ]
 }
