@@ -401,7 +401,7 @@
       "automerge": true
     },
     {
-      "description": "Bump both jactionlint pins (the JACTIONLINT_VERSION env var in jactionlint.yml and the pre-commit hook entry) in one PR. clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal, so a PR that moves only one fails CI. groupName does not change automerge: the base policy applies.",
+      "description": "Bump both jactionlint pins (the JACTIONLINT_VERSION env var in jactionlint.yml and the pre-commit hook entry) in one PR. clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal, so a PR that moves only one fails CI. Wait 3 days after a release before proposing it: jactionlint installs from PyPI by version, with no hash, and runs in CI under the App token, so the wait gives time for a bad release to be yanked. groupName does not change automerge: the base policy applies after the wait.",
       "matchManagers": [
         "custom.regex"
       ],
@@ -411,7 +411,8 @@
       "matchPackageNames": [
         "jactionlint"
       ],
-      "groupName": "jactionlint"
+      "groupName": "jactionlint",
+      "minimumReleaseAge": "3 days"
     }
   ]
 }
