@@ -119,6 +119,28 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+OSV_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the pinned jactionlint (workflow linter and security auditor) release in jactionlint.yml. CI downloads the linux amd64 release archive, checks it against the adjacent JACTIONLINT_SHA256 with `sha256sum -c`, and runs `gh attestation verify --repo jdx/jactionlint`. The `# renovate: datasource=github-releases depName=jdx/jactionlint` annotation names the source. Renovate keeps the bare version style (tag v2.7.0 is written as 2.7.0). The pre-commit hook pins the same version from PyPI (next manager), and the jactionlint packageRule groups both into one PR because clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/jactionlint\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+JACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track the jactionlint version in the pre-commit hook entry (`uvx --from jactionlint==<ver> jactionlint ...`). The hook is a `language: system` entry, so the pre-commit manager does not see it, and the line has no `# renovate:` annotation. It runs only on developer machines and installs from PyPI by version. It must stay equal to the JACTIONLINT_VERSION pin in jactionlint.yml, and the jactionlint packageRule groups both into one PR.",
+      "managerFilePatterns": [
+        "/^\\.pre-commit-config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "uvx --from jactionlint==(?<currentValue>[0-9][^\\s\"']*)"
+      ],
+      "depNameTemplate": "jactionlint",
+      "datasourceTemplate": "pypi"
     }
   ],
   "customDatasources": {
@@ -377,6 +399,36 @@
         "major"
       ],
       "automerge": true
+    },
+    {
+      "description": "Bump both jactionlint pins in one PR: the release-archive pin in jactionlint.yml (jdx/jactionlint, github-releases) and the pre-commit hook entry (jactionlint, pypi). clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal, so a PR that moves only one fails CI. Wait 3 days after a release before proposing it, so a bad release has time to be yanked and the PyPI wheels have time to publish. If the PyPI release still lags, the group PR holds only the archive pin and fails that test until the next run adds the PyPI pin. groupName does not change automerge: the base policy applies after the wait.",
+      "matchPackageNames": [
+        "jdx/jactionlint",
+        "jactionlint"
+      ],
+      "groupName": "jactionlint",
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Refresh the sha256 of a jactionlint bump. Renovate updates JACTIONLINT_VERSION in jactionlint.yml but cannot recompute the adjacent JACTIONLINT_SHA256 (the linux amd64 release archive digest). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites JACTIONLINT_SHA256 from GitHub's published asset digest), so version and hash land in one commit. The jactionlint job then checks the archive with `sha256sum -c` and `gh attestation verify`, so a stale hash or a tampered archive fails CI and blocks the merge. With the refresh, the bump follows the base auto-merge policy. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "jdx/jactionlint"
+      ],
+      "labels": [
+        "binary-dep"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          ".github/workflows/jactionlint.yml"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }
