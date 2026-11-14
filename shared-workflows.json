@@ -49,6 +49,16 @@
         ".github/claude-review/**"
       ],
       "automerge": false
+    },
+    {
+      "description": "Wait 3 days after a jactionlint release before proposing it. lint.yml installs it from PyPI by version, with no hash, and runs it with github.token, so the wait gives time for a bad release to be yanked. After the wait, the base auto-merge policy applies.",
+      "matchDatasources": [
+        "pypi"
+      ],
+      "matchPackageNames": [
+        "jactionlint"
+      ],
+      "minimumReleaseAge": "3 days"
     }
   ]
 }
