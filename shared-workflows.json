@@ -51,10 +51,9 @@
       "automerge": false
     },
     {
-      "description": "Wait 3 days after a jactionlint release before proposing it, so a bad release has time to be yanked. `jdx/jactionlint` (github-releases) is the release-archive pin in lint.yml. `jactionlint` (pypi) is the earlier `uv tool install` pin, kept so the wait also covers it until shared-workflows PR 40 lands. After the wait, the base auto-merge policy applies.",
+      "description": "Wait 3 days after a jactionlint release before proposing it, so a bad release has time to be yanked. `jdx/jactionlint` (github-releases) is the release-archive pin in lint.yml. After the wait, the base auto-merge policy applies.",
       "matchPackageNames": [
-        "jdx/jactionlint",
-        "jactionlint"
+        "jdx/jactionlint"
       ],
       "minimumReleaseAge": "3 days"
     },
