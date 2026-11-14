@@ -15,16 +15,6 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the pinned zizmor (GitHub Actions security auditor) release in security.yml via PyPI. zizmor is installed at CI runtime with `uv tool install \"zizmor==$ZIZMOR_VERSION\"`, so neither the github-actions nor any package manager sees it. The `# renovate:` annotation on the ZIZMOR_VERSION line was live but unread until this manager: clauster.json's other custom managers scope to devcontainer.json / versions.txt / Dockerfile / e2e.yml / deps.py / ci.yml / release+nightly / actionlint.yml / osv-scanner.yml, none of which match security.yml.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/security\\.yml$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ZIZMOR_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
-      ]
-    },
-    {
-      "customType": "regex",
       "description": "Track the uv version pinned in the dev-container's postCreateCommand (`pip install uv==<ver>`). It is separate from the Dockerfile's uv pin: the Dockerfile installs Alpine's uv package, and this line installs uv from PyPI. It lives in devcontainer.json, which the built-in devcontainer manager parses only for image/features, not postCreateCommand. Dev-container only (not shipped, not CI-gating), so it follows the base auto-merge policy.",
       "managerFilePatterns": [
         "/^\\.devcontainer/devcontainer\\.json$/"
@@ -97,17 +87,6 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s+driver-opts: image=moby/buildkit:(?<currentValue>[^@\"\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
       ]
-    },
-    {
-      "customType": "regex",
-      "description": "Track the pinned actionlint (workflow linter) release in actionlint.yml via github-releases (#1170). Renovate bumps ONLY `ACTIONLINT_VERSION`; the download URL derives from it in the run-script, so version + URL can't drift. The postUpgradeTask in packageRules (check_binary_dep_pins.py --fix) refreshes the adjacent `ACTIONLINT_SHA256` in the same branch, and the bump then auto-merges. The actionlint job's own `sha256sum -c` fails if the hash is stale.",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/actionlint\\.yml$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
-      ],
-      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -237,28 +216,6 @@
       "addLabels": [
         "vendored"
       ]
-    },
-    {
-      "description": "Refresh the sha256 of an actionlint bump: Renovate updates ACTIONLINT_VERSION but CANNOT recompute the adjacent ACTIONLINT_SHA256 (the release's linux amd64 tarball digest, not the git-tag digest the hosted App sees). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites the stale ACTIONLINT_SHA256 in actionlint.yml from GitHub's published asset digest), so version + hash land in one commit. Auto-merges when the required checks pass: the tool runs only in CI and is not shipped, and the hash comes from GitHub's published asset digest. The actionlint and binary-dep-pins checks are not required. If CE cannot run the task, a stale hash can merge, and those jobs then fail on main. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
-      "matchDatasources": [
-        "github-releases"
-      ],
-      "matchPackageNames": [
-        "rhysd/actionlint"
-      ],
-      "automerge": true,
-      "labels": [
-        "binary-dep"
-      ],
-      "postUpgradeTasks": {
-        "commands": [
-          "python3 scripts/check_binary_dep_pins.py --fix"
-        ],
-        "fileFilters": [
-          ".github/workflows/actionlint.yml"
-        ],
-        "executionMode": "branch"
-      }
     },
     {
       "description": "Refresh the sha256 of an OSV-Scanner bump (#1469): Renovate updates OSV_VERSION but CANNOT recompute the adjacent OSV_SHA256 (the linux amd64 asset's file checksum, not the git-tag digest the hosted App sees). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites the stale OSV_SHA256 in osv-scanner.yml from GitHub's published asset digest), so version + hash land in one commit. Auto-merges when the required checks pass: the tool runs only in CI and is not shipped, and the hash comes from GitHub's published asset digest. The OSV-Scanner and binary-dep-pins checks are not required. If CE cannot run the task, a stale hash can merge, and those jobs then fail on main. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
