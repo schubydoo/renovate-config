@@ -18,7 +18,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track the tools that lint.yml installs by version: actionlint (github-releases) and zizmor (pypi). Each pin carries a `# renovate: datasource=... depName=...` comment on the line above its `<NAME>_VERSION:` env value, so one pattern covers both. github-actions never reads these env values.",
+      "description": "Track the tool that lint.yml installs by version: jactionlint (pypi), installed with `uv tool install \"jactionlint==${JACTIONLINT_VERSION}\"`. The pin carries a `# renovate: datasource=... depName=...` comment on the line above its `<NAME>_VERSION:` env value, so the pattern covers any future annotated pin too. github-actions never reads these env values. jactionlint has no checksum pin, so it follows the base auto-merge policy: the jactionlint job on the PR runs the new version.",
       "managerFilePatterns": [
         "/^\\.github/workflows/lint\\.yml$/"
       ],
@@ -47,13 +47,6 @@
       "description": "Hold every Claude Code bump of the `auth: api` path (.github/claude-review/package.json and its lockfile) for review, for the same reason as claude-code-action: the guard hook, the allow rules and the setting-sources isolation must still hold on the new CLI.",
       "matchFileNames": [
         ".github/claude-review/**"
-      ],
-      "automerge": false
-    },
-    {
-      "description": "Hold actionlint bumps. lint.yml pins ACTIONLINT_SHA256 next to the version, and this repo has no task that refreshes it, so a bump fails the actionlint job's `sha256sum -c` until a person updates the hash in the same PR.",
-      "matchPackageNames": [
-        "rhysd/actionlint"
       ],
       "automerge": false
     }
