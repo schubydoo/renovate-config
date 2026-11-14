@@ -358,22 +358,13 @@
       "automerge": true
     },
     {
-      "description": "Bump both jactionlint pins in one PR: the release-archive pin in jactionlint.yml (jdx/jactionlint, github-releases) and the pre-commit hook entry (jactionlint, pypi). clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal, so a PR that moves only one fails CI. Wait 3 days after a release before proposing it, so a bad release has time to be yanked and the PyPI wheels have time to publish. If the PyPI release still lags, the group PR holds only the archive pin and fails that test until the next run adds the PyPI pin. groupName does not change automerge: the base policy applies after the wait.",
+      "description": "Bump both jactionlint pins in one PR, and refresh the archive hash in that PR. The pins are the release-archive pin in jactionlint.yml (jdx/jactionlint, github-releases) and the pre-commit hook entry (jactionlint, pypi). clauster's tests/test_jactionlint_workflow.py requires the two pins to be equal, so a PR that moves only one fails CI. Wait 3 days after a release before proposing it, so a bad release has time to be yanked and the PyPI wheels have time to publish. If the PyPI release still lags, the group PR holds only the archive pin and fails that test until the next run adds the PyPI pin. Renovate cannot recompute JACTIONLINT_SHA256 (the linux amd64 release archive digest). The postUpgradeTask (check_binary_dep_pins.py --fix) rewrites it in-branch from GitHub's published asset digest. The task sits on this group rule, not on a jdx/jactionlint-only rule, because a group branch takes postUpgradeTasks from upgrades[0], sorted by depName, and `jactionlint` (pypi) sorts first. The jactionlint job checks the archive with `sha256sum -c` and `gh attestation verify`, so a stale hash or a tampered archive fails CI and blocks the merge. groupName does not change automerge: the base policy applies after the wait. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
       "matchPackageNames": [
         "jdx/jactionlint",
         "jactionlint"
       ],
       "groupName": "jactionlint",
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "description": "Refresh the sha256 of a jactionlint bump. Renovate updates JACTIONLINT_VERSION in jactionlint.yml but cannot recompute the adjacent JACTIONLINT_SHA256 (the linux amd64 release archive digest). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (check_binary_dep_pins.py --fix rewrites JACTIONLINT_SHA256 from GitHub's published asset digest), so version and hash land in one commit. The jactionlint job then checks the archive with `sha256sum -c` and `gh attestation verify`, so a stale hash or a tampered archive fails CI and blocks the merge. With the refresh, the bump follows the base auto-merge policy. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
-      "matchDatasources": [
-        "github-releases"
-      ],
-      "matchPackageNames": [
-        "jdx/jactionlint"
-      ],
+      "minimumReleaseAge": "3 days",
       "labels": [
         "binary-dep"
       ],
