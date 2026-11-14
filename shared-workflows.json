@@ -18,7 +18,7 @@
     },
     {
       "customType": "regex",
-      "description": "Track the tool that lint.yml installs by version: jactionlint (pypi), installed with `uv tool install \"jactionlint==${JACTIONLINT_VERSION}\"`. The pin carries a `# renovate: datasource=... depName=...` comment on the line above its `<NAME>_VERSION:` env value, so the pattern covers any future annotated pin too. github-actions never reads these env values. jactionlint has no checksum pin, so it follows the base auto-merge policy: the jactionlint job on the PR runs the new version.",
+      "description": "Track the tools that lint.yml installs by version. Each pin carries a `# renovate: datasource=... depName=...` comment on the line above its `<NAME>_VERSION:` env value, so one pattern covers any annotated pin. github-actions never reads these env values. Today the pin is jactionlint: the release archive (`datasource=github-releases depName=jdx/jactionlint`) with an adjacent JACTIONLINT_SHA256, which the jdx/jactionlint packageRule below refreshes in-branch.",
       "managerFilePatterns": [
         "/^\\.github/workflows/lint\\.yml$/"
       ],
@@ -51,14 +51,30 @@
       "automerge": false
     },
     {
-      "description": "Wait 3 days after a jactionlint release before proposing it. lint.yml installs it from PyPI by version, with no hash, and runs it with github.token, so the wait gives time for a bad release to be yanked. After the wait, the base auto-merge policy applies.",
-      "matchDatasources": [
-        "pypi"
-      ],
+      "description": "Wait 3 days after a jactionlint release before proposing it, so a bad release has time to be yanked. `jdx/jactionlint` (github-releases) is the release-archive pin in lint.yml. `jactionlint` (pypi) is the earlier `uv tool install` pin, kept so the wait also covers it until shared-workflows PR 40 lands. After the wait, the base auto-merge policy applies.",
       "matchPackageNames": [
+        "jdx/jactionlint",
         "jactionlint"
       ],
       "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Refresh the sha256 of a jactionlint bump. Renovate updates JACTIONLINT_VERSION in lint.yml but cannot recompute the adjacent JACTIONLINT_SHA256 (the linux amd64 release archive digest). Self-hosted Renovate CE refreshes it in-branch via the postUpgradeTask (scripts/check_binary_dep_pins.py --fix rewrites JACTIONLINT_SHA256 from GitHub's published asset digest), so version and hash land in one commit. The lint job then checks the archive with `sha256sum -c` and `gh attestation verify`, so a stale hash or a tampered archive fails CI and blocks the merge. With the refresh, the bump follows the base auto-merge policy. The command must be on RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS.",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "jdx/jactionlint"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "python3 scripts/check_binary_dep_pins.py --fix"
+        ],
+        "fileFilters": [
+          ".github/workflows/lint.yml"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }
