@@ -41,6 +41,17 @@
         "\"(?<depName>docker\\.io/[a-z0-9._/-]+):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[a-f0-9]{64})\""
       ],
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the real third-party tools that the `pack real tools` job in ci.yml packs (ruff, uv, duckdb; scratchsmith PR 571). Each tool is a GitHub release archive pinned by a `# renovate:` annotated *_VERSION plus an adjacent *_SHA256, and the job checks the archive with `sha256sum -c` and `gh attestation verify`. Renovate bumps ONLY the version; the download URL derives from it. The sha256 cannot come from Renovate (github-releases exposes the git-tag digest, not the asset's file hash), so the real-tools rule below refreshes it in the same commit. Bare tags (ruff, uv) and v-prefixed tags (duckdb) both work: a bare pin stays bare.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>github-releases) depName=(?<depName>\\S+)\\s+[A-Z0-9_]+_VERSION:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -74,6 +85,19 @@
       "postUpgradeTasks": {
         "commands": ["python3 scripts/check_binary_dep_pins.py --fix"],
         "fileFilters": [".github/workflows/actionlint.yml"],
+        "executionMode": "branch"
+      }
+    },
+    {
+      "description": "Bump the real-tools pins in ci.yml (ruff, uv, duckdb) as one weekly PR. uv releases several times a week, and a daily PR per tool adds churn but no safety for CI fixtures. One broken tool holds the other two until it is fixed, the same trade as the base groups. The postUpgradeTask sits on this group rule, not on a per-tool rule: a group branch takes its config from upgrades[0], so a per-tool task would run only when that tool sorts first (clauster PR 111). scripts/check_binary_dep_pins.py --fix rewrites each *_SHA256 from GitHub's published asset digest; the command is the actionlint one, so the CE allowlist needs no change. Base automerge policy on purpose: the `pack real tools` job is part of `ci required checks passed`, so the PR runs every bumped tool before it can merge. The 7-day soak above applies, and a major (duckdb 3.0) gets its own branch and waits.",
+      "matchDatasources": ["github-releases"],
+      "matchFileNames": [".github/workflows/ci.yml"],
+      "matchDepNames": ["astral-sh/ruff", "astral-sh/uv", "duckdb/duckdb"],
+      "groupName": "real-tools",
+      "schedule": ["before 6am on monday"],
+      "postUpgradeTasks": {
+        "commands": ["python3 scripts/check_binary_dep_pins.py --fix"],
+        "fileFilters": [".github/workflows/ci.yml"],
         "executionMode": "branch"
       }
     }
